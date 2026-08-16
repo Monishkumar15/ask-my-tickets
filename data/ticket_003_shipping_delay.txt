@@ -1,0 +1,12 @@
+Subject: Order delayed beyond estimated delivery date
+
+Customer's order was estimated to arrive in 5 business days but it has
+now been 9 business days with no delivery.
+
+Resolution: For domestic orders delayed more than 7 business days past
+the estimated delivery date, agents should first check the carrier
+tracking link for updates. If tracking shows no movement in the last 3
+days, file a "lost in transit" claim with the carrier and offer the
+customer either a full reshipment at no cost or a full refund, whichever
+they prefer. Delays under 7 business days are considered normal and do
+not qualify for compensation.

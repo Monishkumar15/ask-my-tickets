@@ -1,0 +1,12 @@
+Subject: How to cancel a subscription and data retention
+
+Customer wants to cancel their subscription and asks what happens to
+their saved data.
+
+Resolution: Subscriptions can be cancelled anytime from Account Settings
+> Subscription > Cancel Plan, effective at the end of the current billing
+cycle (no partial refunds for the remaining days). After cancellation,
+customer data is retained for 90 days in case the customer wants to
+reactivate. After 90 days, all data is permanently deleted and cannot be
+recovered. Inform the customer of this 90-day window when processing a
+cancellation request.

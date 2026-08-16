@@ -1,0 +1,12 @@
+Subject: Customer requesting refund after 45 days
+
+Customer purchased a subscription 45 days ago and is requesting a full
+refund, stating they never used the product.
+
+Resolution: Our standard refund policy allows full refunds within 30 days
+of purchase, no questions asked. Requests made between 31-60 days are
+eligible for a 50% partial refund at the agent's discretion, provided the
+account shows minimal usage. Requests after 60 days are not eligible for
+any refund except in cases of billing error or fraud. For this case
+(45 days, no usage), offer the 50% partial refund and document the
+reason in the ticket.

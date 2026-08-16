@@ -1,0 +1,12 @@
+Subject: Customer disputes a duplicate charge
+
+Customer noticed two identical charges of $29.99 on the same day and
+believes they were billed twice by mistake.
+
+Resolution: Duplicate charges on the same day for the same amount are
+usually caused by a payment retry after a temporarily declined card, and
+are almost always automatically reversed by the payment processor within
+5-7 business days. Confirm with the customer that only one charge appears
+as "settled" and the other shows as "pending" or "reversed" in their bank
+statement. If both charges show as fully settled after 7 business days,
+escalate to the billing team for a manual refund of the duplicate amount.
