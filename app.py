@@ -9,7 +9,7 @@ import requests
 
 from embed import get_embedding_model
 from generate import answer_question
-from store import get_collection
+from store import get_client
 
 
 def main():
@@ -17,9 +17,9 @@ def main():
     print("Type 'exit' to quit.\n")
 
     # Load once, reuse for every question -- avoids reloading the model /
-    # reconnecting to the database on every single loop iteration.
+    # reconnecting to Qdrant on every single loop iteration.
     model = get_embedding_model()
-    collection = get_collection()
+    client = get_client()
 
     while True:
         question = input("Ask a question: ").strip()
@@ -29,13 +29,14 @@ def main():
             break
 
         if not question:
+            print("Please enter a question.\n")
             continue  # user just pressed Enter, ask again
 
         # A single failed request (e.g. hitting the free model's rate limit)
         # shouldn't crash the whole session -- show a message and let the
         # user try again, instead of the program exiting on one bad call.
         try:
-            result = answer_question(question, model=model, collection=collection)
+            result = answer_question(question, model=model, client=client)
         except requests.exceptions.HTTPError as e:
             print(f"\nSomething went wrong calling the AI model ({e}).")
             print("If this says '429', you've hit the free model's rate limit"
@@ -43,8 +44,9 @@ def main():
             continue
 
         print(f"\nAnswer: {result['answer']}")
-        if result["source"]:
-            print(f"Source: {result['source']}")
+        if result["sources"]:
+            label = "Source" if len(result["sources"]) == 1 else "Sources"
+            print(f"{label}: {', '.join(result['sources'])}")
         print()  # blank line before the next prompt
 
 

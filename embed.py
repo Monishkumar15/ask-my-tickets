@@ -4,18 +4,15 @@ local embedding model.
 """
 
 from sentence_transformers import SentenceTransformer
+
 from chunk import load_and_chunk_all
+from config import EMBEDDING_MODEL_NAME
 
-# BGE-small: a small, free, local embedding model from the BGE family named
-# in the course material. Downloads once (~130MB) the first time you run
-# this, then it's cached locally for future runs.
-MODEL_NAME = "BAAI/bge-small-en-v1.5"
-
-# BGE models are trained "asymmetrically": documents are embedded as-is, but
-# queries are embedded with this instruction prefix in front, which measurably
-# improves retrieval accuracy for this model family. Documents never get this
-# prefix — only questions do (see retrieve.py).
-QUERY_INSTRUCTION = "Represent this sentence for searching relevant passages: "
+# all-MiniLM-L6-v2: a small, free, local embedding model that handles
+# general English text well. Downloads once (~80MB) the first time you run
+# this, then it's cached locally for future runs. Configurable via
+# EMBEDDING_MODEL_NAME in .env if you want to swap models later.
+MODEL_NAME = EMBEDDING_MODEL_NAME
 
 
 def get_embedding_model():

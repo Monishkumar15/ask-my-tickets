@@ -1,15 +1,15 @@
 """
 Step 9: Compare retrieval quality across two different chunk sizes.
 
-Uses a temporary in-memory ChromaDB (not your real chroma_db/ folder) so
+Uses a temporary in-memory Qdrant instance (not your real Qdrant server) so
 your actual app's data is left untouched. No LLM/OpenRouter calls here --
 this is a pure retrieval comparison, so it costs nothing and has no rate limit.
 """
 
-import chromadb
-
+import vectorstore
 from chunk import load_and_chunk_all
-from embed import get_embedding_model, QUERY_INSTRUCTION
+from config import QUERY_INSTRUCTION
+from embed import get_embedding_model
 
 # One test question per ticket, deliberately reworded so it does NOT share
 # exact words with the source document -- a real test of semantic matching.
@@ -32,42 +32,38 @@ CHUNK_CONFIGS = [
 ]
 
 
-def build_temp_collection(chunk_size, overlap_sentences, model):
-    """Chunk + embed + store into a fresh in-memory (non-persistent) collection."""
+def build_temp_collection(chunk_size, overlap_sentences, model, collection_name):
+    """Chunk + embed + store into a fresh in-memory (non-persistent) Qdrant collection."""
     chunks = load_and_chunk_all(chunk_size=chunk_size, overlap_sentences=overlap_sentences)
 
     texts = [c["text"] for c in chunks]
     embeddings = model.encode(texts).tolist()
 
-    client = chromadb.Client()  # in-memory only, nothing written to disk
-    collection = client.create_collection(name=f"test_{chunk_size}")
-    collection.add(
-        ids=[f"{c['source']}_{c['chunk_index']}" for c in chunks],
-        embeddings=embeddings,
-        documents=texts,
-        metadatas=[{"source": c["source"]} for c in chunks],
-    )
-    return collection, len(chunks)
+    client = vectorstore.get_client(url=None)  # in-memory only, nothing written to disk
+    vectorstore.build_collection(client, chunks, embeddings, collection_name=collection_name)
+    return client, len(chunks)
 
 
 def run_comparison():
     model = get_embedding_model()
 
     for config in CHUNK_CONFIGS:
-        collection, chunk_count = build_temp_collection(
-            config["chunk_size"], config["overlap_sentences"], model
+        collection_name = f"test_{config['chunk_size']}"
+        client, chunk_count = build_temp_collection(
+            config["chunk_size"], config["overlap_sentences"], model, collection_name
         )
 
         print(f"\n=== {config['label']} -> {chunk_count} total chunks ===\n")
 
         correct = 0
         for test in TEST_QUESTIONS:
-            query_text = QUERY_INSTRUCTION + test["question"]
-            query_embedding = model.encode([query_text]).tolist()
+            query_text = QUERY_INSTRUCTION + test["question"] if QUERY_INSTRUCTION else test["question"]
+            # Qdrant wants a single flat vector, not a batch -- [0] unwraps it.
+            query_embedding = model.encode([query_text]).tolist()[0]
 
-            result = collection.query(query_embeddings=query_embedding, n_results=1)
-            top_source = result["metadatas"][0][0]["source"]
-            top_distance = result["distances"][0][0]
+            results = vectorstore.search(client, query_embedding, top_k=1, collection_name=collection_name)
+            top_source = results[0]["source"]
+            top_distance = results[0]["distance"]
 
             is_correct = top_source == test["expected_source"]
             correct += is_correct

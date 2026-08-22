@@ -6,18 +6,33 @@ Chunks are built from whole sentences, so we never cut a word in half.
 import os
 import re
 
-DATA_DIR = "data"
+from config import CHUNK_SIZE, DATA_DIR, OVERLAP_SENTENCES
+from loaders import LOADERS, load_document_text
 
 
 def load_documents(data_dir=DATA_DIR):
-    """Read every .txt file in data_dir. Returns a list of (filename, text)."""
+    """
+    Read every supported document in data_dir (.txt, .md, .docx, .pdf, .xlsx).
+    Unsupported or unreadable files are skipped with a warning instead of
+    crashing the whole run. Returns a list of (filename, text).
+    """
     documents = []
-    for filename in os.listdir(data_dir):
-        if filename.endswith(".txt"):
-            filepath = os.path.join(data_dir, filename)
-            with open(filepath, "r", encoding="utf-8") as f:
-                text = f.read()
-            documents.append((filename, text))
+    for filename in sorted(os.listdir(data_dir)):
+        filepath = os.path.join(data_dir, filename)
+        if not os.path.isfile(filepath):
+            continue
+
+        ext = os.path.splitext(filename)[1].lower()
+        if ext not in LOADERS:
+            print(f"WARNING: skipping unsupported file type '{filename}'.")
+            continue
+
+        text = load_document_text(filepath)
+        if not text or not text.strip():
+            print(f"WARNING: no extractable text in '{filename}', skipping.")
+            continue
+
+        documents.append((filename, text))
     return documents
 
 
@@ -41,7 +56,7 @@ def split_into_sentences(text):
     return sentences
 
 
-def chunk_text(text, chunk_size=300, overlap_sentences=1):
+def chunk_text(text, chunk_size=CHUNK_SIZE, overlap_sentences=OVERLAP_SENTENCES):
     """
     Group whole sentences into chunks of roughly chunk_size characters.
     overlap_sentences controls how many trailing sentences repeat at the
@@ -70,7 +85,7 @@ def chunk_text(text, chunk_size=300, overlap_sentences=1):
     return chunks
 
 
-def load_and_chunk_all(data_dir=DATA_DIR, chunk_size=300, overlap_sentences=1):
+def load_and_chunk_all(data_dir=DATA_DIR, chunk_size=CHUNK_SIZE, overlap_sentences=OVERLAP_SENTENCES):
     """Load every document and chunk it. Returns a list of dicts with text + source."""
     all_chunks = []
     for filename, text in load_documents(data_dir):
