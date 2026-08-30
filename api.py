@@ -10,14 +10,27 @@ import os
 import shutil
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from pydantic import BaseModel, Field
 
 from config import DATA_DIR, OPENROUTER_API_KEY
 from embed import get_embedding_model
 from loaders import LOADERS
 from store import build_database, get_client
 from vectorstore import count as count_chunks
+from generate import answer_question
+from tracing import annotate, get as get_trace, list_recent
 
 app = FastAPI(title="Ask My Tickets API")
+
+class AskRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=4000)
+    top_k: int = Field(default=3, ge=1, le=20)
+
+class TraceAnnotation(BaseModel):
+    reviewed: bool | None = None
+    failure_note: str | None = Field(default=None, max_length=2000)
+    problem_type: str | None = Field(default=None, max_length=120)
+    severity: int | None = Field(default=None, ge=1, le=5)
 
 # Loaded once, reused across requests -- same "load once" pattern as app.py.
 _model = None
@@ -93,3 +106,29 @@ def health_check():
     ) else "degraded"
 
     return {"status": overall, "checks": checks}
+
+@app.post("/ask")
+def ask_question(request: AskRequest):
+    try:
+        return answer_question(request.question, top_k=request.top_k, model=_get_model(), client=get_client(), return_trace_id=True)
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+@app.get("/traces")
+def traces(limit: int = 50):
+    if not 1 <= limit <= 200: raise HTTPException(status_code=422, detail="limit must be between 1 and 200")
+    return list_recent(limit)
+
+@app.get("/traces/{trace_id}")
+def trace_detail(trace_id: str):
+    record = get_trace(trace_id)
+    if record is None: raise HTTPException(status_code=404, detail="Trace not found")
+    return record
+
+@app.post("/traces/{trace_id}/annotation")
+def annotate_trace(trace_id: str, annotation: TraceAnnotation):
+    values = annotation.model_dump(exclude_none=True) if hasattr(annotation, "model_dump") else annotation.dict(exclude_none=True)
+    try: record = annotate(trace_id, values)
+    except ValueError as exc: raise HTTPException(status_code=422, detail=str(exc)) from exc
+    if record is None: raise HTTPException(status_code=404, detail="Trace not found")
+    return record
