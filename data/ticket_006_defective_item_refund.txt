@@ -1,0 +1,9 @@
+Subject: Refund request for a defective item
+
+Customer says the product arrived broken and wants a refund.
+
+Resolution: Defective items are eligible for a full refund regardless of
+purchase date, as long as the customer reports the defect within 90 days
+of delivery and provides a photo of the damage. This overrides the
+standard 30/31-60/60+ day refund window, which only applies to
+non-defective returns.

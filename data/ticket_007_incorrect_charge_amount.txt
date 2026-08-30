@@ -1,0 +1,9 @@
+Subject: Customer was charged the wrong amount
+
+Customer says they were charged $49.99 instead of the advertised $29.99
+price.
+
+Resolution: Incorrect-amount charges (not duplicates) are not
+auto-reversed by the payment processor. Escalate directly to the billing
+team with a screenshot of the advertised price and the actual charge; the
+billing team will manually adjust the charge within 2 business days.

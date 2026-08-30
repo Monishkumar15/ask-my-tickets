@@ -1,0 +1,227 @@
+[
+  {
+    "id": "q1",
+    "question": "why did my account get locked when I typed my password wrong a few times?",
+    "expected_source": "ticket_001_password_lockout.txt",
+    "retrieved_sources": [
+      "ticket_001_password_lockout.txt",
+      "ticket_001_password_lockout.txt",
+      "ticket_001_password_lockout.txt"
+    ],
+    "top1_distance": 0.4000953328040401,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q2",
+    "question": "my order still hasn't shown up, it's way past when it should have",
+    "expected_source": "ticket_003_shipping_delay.txt",
+    "retrieved_sources": [
+      "ticket_003_shipping_delay.txt",
+      "ticket_002_refund_window.txt",
+      "ticket_005_billing_dispute.txt"
+    ],
+    "top1_distance": 0.4671267295434234,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q3",
+    "question": "3 attempts and now I'm locked out, is that normal?",
+    "expected_source": "ticket_001_password_lockout.txt",
+    "retrieved_sources": [
+      "ticket_001_password_lockout.txt",
+      "ticket_001_password_lockout.txt",
+      "ticket_001_password_lockout.txt"
+    ],
+    "top1_distance": 0.42101600742597745,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q4",
+    "question": "I want to go to Account Settings, Subscription, then Cancel Plan -- what happens after that?",
+    "expected_source": "ticket_004_account_cancellation.txt",
+    "retrieved_sources": [
+      "ticket_004_account_cancellation.txt",
+      "ticket_001_password_lockout.txt",
+      "ticket_005_billing_dispute.txt"
+    ],
+    "top1_distance": 0.22711731992949202,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q5",
+    "question": "there are two $29.99 charges on my statement from the same day",
+    "expected_source": "ticket_005_billing_dispute.txt",
+    "retrieved_sources": [
+      "ticket_005_billing_dispute.txt",
+      "ticket_007_incorrect_charge_amount.txt",
+      "ticket_002_refund_window.txt"
+    ],
+    "top1_distance": 0.2932169060358397,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q6",
+    "question": "it's been 45 days since I bought it, can I still get money back?",
+    "expected_source": "ticket_002_refund_window.txt",
+    "retrieved_sources": [
+      "ticket_002_refund_window.txt",
+      "ticket_006_defective_item_refund.txt",
+      "ticket_004_account_cancellation.txt"
+    ],
+    "top1_distance": 0.3652212284259949,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q7",
+    "question": "carrier says lost in transit, what do we do for the customer?",
+    "expected_source": "ticket_003_shipping_delay.txt",
+    "retrieved_sources": [
+      "ticket_003_shipping_delay.txt",
+      "ticket_004_account_cancellation.txt",
+      "ticket_002_refund_window.txt"
+    ],
+    "top1_distance": 0.3181286824319991,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q11",
+    "question": "the item I got was damaged, will you refund me",
+    "expected_source": "ticket_006_defective_item_refund.txt",
+    "retrieved_sources": [
+      "ticket_006_defective_item_refund.txt",
+      "ticket_002_refund_window.txt",
+      "ticket_007_incorrect_charge_amount.txt"
+    ],
+    "top1_distance": 0.39386482567415626,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q12",
+    "question": "you guys charged me the wrong price",
+    "expected_source": "ticket_007_incorrect_charge_amount.txt",
+    "retrieved_sources": [
+      "ticket_007_incorrect_charge_amount.txt",
+      "ticket_007_incorrect_charge_amount.txt",
+      "ticket_005_billing_dispute.txt"
+    ],
+    "top1_distance": 0.4508570062936941,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q8",
+    "question": "exactly how many days after cancelling is my data deleted?",
+    "expected_source": "ticket_004_account_cancellation.txt",
+    "retrieved_sources": [
+      "ticket_004_account_cancellation.txt",
+      "ticket_002_refund_window.txt",
+      "ticket_003_shipping_delay.txt"
+    ],
+    "top1_distance": 0.1717655586963518,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q9",
+    "question": "what percentage refund do I get if I ask between 31 and 60 days after buying?",
+    "expected_source": "ticket_002_refund_window.txt",
+    "retrieved_sources": [
+      "ticket_002_refund_window.txt",
+      "ticket_006_defective_item_refund.txt",
+      "ticket_005_billing_dispute.txt"
+    ],
+    "top1_distance": 0.3249331149170154,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q10",
+    "question": "how many business days do you wait before filing a lost-in-transit claim?",
+    "expected_source": "ticket_003_shipping_delay.txt",
+    "retrieved_sources": [
+      "ticket_003_shipping_delay.txt",
+      "ticket_002_refund_window.txt",
+      "ticket_006_defective_item_refund.txt"
+    ],
+    "top1_distance": 0.2877497179953986,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q13",
+    "question": "90 days delete data",
+    "expected_source": "ticket_004_account_cancellation.txt",
+    "retrieved_sources": [
+      "ticket_004_account_cancellation.txt",
+      "ticket_002_refund_window.txt",
+      "ticket_003_shipping_delay.txt"
+    ],
+    "top1_distance": 0.36835984741620087,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q14",
+    "question": "29.99 x2 reversed",
+    "expected_source": "ticket_005_billing_dispute.txt",
+    "retrieved_sources": [
+      "ticket_007_incorrect_charge_amount.txt",
+      "ticket_005_billing_dispute.txt",
+      "ticket_007_incorrect_charge_amount.txt"
+    ],
+    "top1_distance": 0.5098668709698345,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  },
+  {
+    "id": "q15",
+    "question": "3 attempts locked 15 min",
+    "expected_source": "ticket_001_password_lockout.txt",
+    "retrieved_sources": [
+      "ticket_001_password_lockout.txt",
+      "ticket_001_password_lockout.txt",
+      "ticket_002_refund_window.txt"
+    ],
+    "top1_distance": 0.4442002336725688,
+    "doc_hit": true,
+    "classification": "SKIPPED_LLM_ERROR",
+    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
+    "keyword_grade": null
+  }
+]
