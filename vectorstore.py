@@ -76,3 +76,9 @@ def search(client, query_vector, top_k=3, collection_name=COLLECTION_NAME):
 def count(client, collection_name=COLLECTION_NAME):
     """How many chunks are currently stored."""
     return client.count(collection_name=collection_name).count
+
+
+def all_chunks(client, collection_name=COLLECTION_NAME):
+    """Return chunk payloads for the React document browser."""
+    records, _ = client.scroll(collection_name=collection_name, limit=1000, with_payload=True, with_vectors=False)
+    return [{"id": point.id, **point.payload} for point in records]

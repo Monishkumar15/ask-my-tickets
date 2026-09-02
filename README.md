@@ -217,8 +217,15 @@ call the endpoints directly:
   free-tier quota just on a health check — it only confirms the key is
   present, not that it's valid.
 
-The CLI (`app.py`) remains the primary way to ask questions — the API only
-adds upload/health, no `/ask` endpoint yet.
+### Week 5 trace review
+
+The API now also provides `POST /ask`, `GET /traces`, trace detail, and review
+annotation endpoints. The frontend is React/Vite: run `uvicorn api:app --reload`
+and, in another terminal, `cd ui-react && npm install && npm run dev`. Open the
+Vite URL (normally http://127.0.0.1:5173). Each answer stores its
+question, retrieved ticket chunks, confidence-gate decision, output/errors,
+and timings in local `traces/` files. Use [WEEK5_ERROR_ANALYSIS.md](WEEK5_ERROR_ANALYSIS.md)
+to report the roughly 20 reviewed traces and ranked error taxonomy.
 
 ## Project structure
 

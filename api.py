@@ -8,19 +8,29 @@ Then open http://127.0.0.1:8000/docs for interactive API docs.
 
 import os
 import shutil
+from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
+from fastapi.middleware.cors import CORSMiddleware
+from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
 from config import DATA_DIR, OPENROUTER_API_KEY
 from embed import get_embedding_model
 from loaders import LOADERS
 from store import build_database, get_client
-from vectorstore import count as count_chunks
+from vectorstore import all_chunks, count as count_chunks
 from generate import answer_question
 from tracing import annotate, get as get_trace, list_recent
+from retrieve import retrieve
 
 app = FastAPI(title="Ask My Tickets API")
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
+    allow_methods=["GET", "POST"],
+    allow_headers=["Content-Type"],
+)
 
 class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=4000)
@@ -31,6 +41,10 @@ class TraceAnnotation(BaseModel):
     failure_note: str | None = Field(default=None, max_length=2000)
     problem_type: str | None = Field(default=None, max_length=120)
     severity: int | None = Field(default=None, ge=1, le=5)
+
+class RetrieveRequest(BaseModel):
+    question: str = Field(min_length=1, max_length=4000)
+    top_k: int = Field(default=3, ge=1, le=20)
 
 # Loaded once, reused across requests -- same "load once" pattern as app.py.
 _model = None
@@ -114,6 +128,24 @@ def ask_question(request: AskRequest):
     except Exception as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
+@app.post("/retrieve")
+def inspect_retrieval(request: RetrieveRequest):
+    try:
+        return retrieve(request.question, top_k=request.top_k, model=_get_model(), client=get_client())
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+@app.get("/documents")
+def documents():
+    try:
+        chunks = all_chunks(get_client())
+    except Exception as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+    grouped = {}
+    for chunk in chunks:
+        grouped.setdefault(chunk["source"], []).append(chunk)
+    return [{"filename": source, "chunk_count": len(items), "preview": items[0]["text"][:240]} for source, items in sorted(grouped.items())]
+
 @app.get("/traces")
 def traces(limit: int = 50):
     if not 1 <= limit <= 200: raise HTTPException(status_code=422, detail="limit must be between 1 and 200")
@@ -132,3 +164,10 @@ def annotate_trace(trace_id: str, annotation: TraceAnnotation):
     except ValueError as exc: raise HTTPException(status_code=422, detail=str(exc)) from exc
     if record is None: raise HTTPException(status_code=404, detail="Trace not found")
     return record
+
+
+# The lightweight browser review surface is served by the same app, avoiding a
+# second dev server while the Week 5 sample is being collected.
+frontend_dist = Path(__file__).parent / "ui-react" / "dist"
+if frontend_dist.exists():
+    app.mount("/", StaticFiles(directory=frontend_dist, html=True), name="ui")
