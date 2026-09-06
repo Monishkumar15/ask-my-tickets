@@ -7,9 +7,8 @@ as many questions as you want in one session.
 
 import requests
 
-from embed import get_embedding_model
 from generate import answer_question
-from store import get_client
+from ingestion import get_client, get_embedding_model
 
 
 def main():
@@ -32,21 +31,25 @@ def main():
             print("Please enter a question.\n")
             continue  # user just pressed Enter, ask again
 
-        # A single failed request (e.g. hitting the free model's rate limit)
-        # shouldn't crash the whole session -- show a message and let the
-        # user try again, instead of the program exiting on one bad call.
+        # A single failed request shouldn't crash the whole session -- show
+        # a message and let the user try again, instead of the program
+        # exiting on one bad call. Gemini already automatically falls back
+        # to Groq on a 429, so seeing this means BOTH providers were
+        # rate-limited/unavailable.
         try:
             result = answer_question(question, model=model, client=client)
         except requests.exceptions.HTTPError as e:
             print(f"\nSomething went wrong calling the AI model ({e}).")
-            print("If this says '429', you've hit the free model's rate limit"
-                  " -- wait a few seconds and try again.\n")
+            print("If this says '429', both Gemini and Groq are rate-limited"
+                  " right now -- wait a few seconds and try again.\n")
             continue
 
         print(f"\nAnswer: {result['answer']}")
         if result["sources"]:
             label = "Source" if len(result["sources"]) == 1 else "Sources"
             print(f"{label}: {', '.join(result['sources'])}")
+        if result["provider"]:
+            print(f"(answered by: {result['provider']})")
         print()  # blank line before the next prompt
 
 

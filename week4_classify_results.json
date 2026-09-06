@@ -10,9 +10,9 @@
     ],
     "top1_distance": 0.4000953328040401,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_WRONG_ANSWER",
+    "answer": "Your account gets locked after 3 failed login attempts for security reasons.",
+    "keyword_grade": false
   },
   {
     "id": "q2",
@@ -21,13 +21,15 @@
     "retrieved_sources": [
       "ticket_003_shipping_delay.txt",
       "ticket_002_refund_window.txt",
-      "ticket_005_billing_dispute.txt"
+      "ticket_005_billing_dispute.txt",
+      "customer support.pdf",
+      "ticket_006_defective_item_refund.txt"
     ],
     "top1_distance": 0.4671267295434234,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "Your order is currently 4 business days past its estimated delivery date (having been estimated for 5 business days and now being at 9 business days).\n\nRegarding your resolution:\n* Because your order is not yet delayed more than 7 business days past the estimated delivery date, the policy is for agents to first check the carrier tracking link for updates.\n* I don't know if you are eligible for a \"lost in transit\" claim, a reshipment, or a refund at this time, as those actions only apply if your order becomes delayed more than 7 business days past the estimated delivery date and tracking shows no movement in the last 3 days.",
+    "keyword_grade": true
   },
   {
     "id": "q3",
@@ -40,9 +42,9 @@
     ],
     "top1_distance": 0.42101600742597745,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "Yes, this is expected behavior. After 3 failed login attempts, the account locks for 15 minutes for security reasons. During this lockout window, no reset email is sent by design. You should wait 15 minutes and then use the \"Forgot Password\" link again; it will work normally once the lockout period ends. If you still cannot log in after 15 minutes, please escalate to Tier 2 for a manual unlock.",
+    "keyword_grade": true
   },
   {
     "id": "q4",
@@ -50,14 +52,14 @@
     "expected_source": "ticket_004_account_cancellation.txt",
     "retrieved_sources": [
       "ticket_004_account_cancellation.txt",
-      "ticket_001_password_lockout.txt",
-      "ticket_005_billing_dispute.txt"
+      "ticket_004_account_cancellation.txt",
+      "ticket_004_account_cancellation.txt"
     ],
     "top1_distance": 0.22711731992949202,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "After selecting \"Cancel Plan\" in Account Settings > Subscription, the following occurs:\n\n*   **Subscription status:** Your subscription will be cancelled effective at the end of the current billing cycle. Please note that there are no partial refunds for any remaining days.\n*   **Data retention:** Your customer data is retained for 90 days, which allows you the option to reactivate your account.",
+    "keyword_grade": true
   },
   {
     "id": "q5",
@@ -65,14 +67,14 @@
     "expected_source": "ticket_005_billing_dispute.txt",
     "retrieved_sources": [
       "ticket_005_billing_dispute.txt",
-      "ticket_007_incorrect_charge_amount.txt",
-      "ticket_002_refund_window.txt"
+      "ticket_005_billing_dispute.txt",
+      "ticket_007_incorrect_charge_amount.txt"
     ],
     "top1_distance": 0.2932169060358397,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "Duplicate charges of $29.99 on the same day are usually caused by a payment retry after a temporarily declined card. These charges are almost always automatically reversed by the payment processor within 5-7 business days.",
+    "keyword_grade": true
   },
   {
     "id": "q6",
@@ -81,13 +83,14 @@
     "retrieved_sources": [
       "ticket_002_refund_window.txt",
       "ticket_006_defective_item_refund.txt",
-      "ticket_004_account_cancellation.txt"
+      "ticket_004_account_cancellation.txt",
+      "ticket_005_billing_dispute.txt"
     ],
     "top1_distance": 0.3652212284259949,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "Yes, you can still get money back. According to the policy, requests made between 31 and 60 days are eligible for a 50% partial refund at the agent's discretion, provided the account shows minimal usage. For your specific case of 45 days with no usage, the instructed resolution is to offer the 50% partial refund and document the reason in the ticket.",
+    "keyword_grade": true
   },
   {
     "id": "q7",
@@ -95,14 +98,14 @@
     "expected_source": "ticket_003_shipping_delay.txt",
     "retrieved_sources": [
       "ticket_003_shipping_delay.txt",
-      "ticket_004_account_cancellation.txt",
-      "ticket_002_refund_window.txt"
+      "ticket_003_shipping_delay.txt",
+      "customer support.pdf"
     ],
     "top1_distance": 0.3181286824319991,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "If the carrier tracking shows no movement in the last 3 days, you must file a \"lost in transit\" claim with the carrier and offer the customer either a full reshipment at no cost or a full refund, depending on their preference.",
+    "keyword_grade": true
   },
   {
     "id": "q11",
@@ -110,14 +113,14 @@
     "expected_source": "ticket_006_defective_item_refund.txt",
     "retrieved_sources": [
       "ticket_006_defective_item_refund.txt",
-      "ticket_002_refund_window.txt",
-      "ticket_007_incorrect_charge_amount.txt"
+      "ticket_006_defective_item_refund.txt",
+      "ticket_002_refund_window.txt"
     ],
     "top1_distance": 0.39386482567415626,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "Yes, you are eligible for a full refund for a defective item regardless of the purchase date, provided that you meet the following conditions:\n\n*   You report the defect within 90 days of the item's delivery.\n*   You provide a photo of the damage.\n\nThis policy for defective items overrides the standard refund windows that apply to non-defective returns.",
+    "keyword_grade": true
   },
   {
     "id": "q12",
@@ -128,11 +131,11 @@
       "ticket_007_incorrect_charge_amount.txt",
       "ticket_005_billing_dispute.txt"
     ],
-    "top1_distance": 0.4508570062936941,
+    "top1_distance": 0.45085700616899715,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "You were charged $49.99 instead of the advertised price of $29.99. Because incorrect-amount charges are not auto-reversed by the payment processor, you must escalate this issue directly to the billing team. Please provide a screenshot of the advertised price and the actual charge; the billing team will then manually adjust the charge within 2 business days.",
+    "keyword_grade": true
   },
   {
     "id": "q8",
@@ -140,14 +143,14 @@
     "expected_source": "ticket_004_account_cancellation.txt",
     "retrieved_sources": [
       "ticket_004_account_cancellation.txt",
-      "ticket_002_refund_window.txt",
-      "ticket_003_shipping_delay.txt"
+      "ticket_004_account_cancellation.txt",
+      "ticket_004_account_cancellation.txt"
     ],
     "top1_distance": 0.1717655586963518,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "After cancelling, your data is retained for 90 days. After those 90 days, all data is permanently deleted and cannot be recovered.",
+    "keyword_grade": true
   },
   {
     "id": "q9",
@@ -155,14 +158,14 @@
     "expected_source": "ticket_002_refund_window.txt",
     "retrieved_sources": [
       "ticket_002_refund_window.txt",
-      "ticket_006_defective_item_refund.txt",
-      "ticket_005_billing_dispute.txt"
+      "ticket_002_refund_window.txt",
+      "ticket_006_defective_item_refund.txt"
     ],
     "top1_distance": 0.3249331149170154,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "If you ask between 31 and 60 days after purchase, you are eligible for a 50% partial refund at the agent's discretion, provided the account shows minimal usage.",
+    "keyword_grade": true
   },
   {
     "id": "q10",
@@ -175,9 +178,9 @@
     ],
     "top1_distance": 0.2877497179953986,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "To file a \"lost in transit\" claim, you must check the carrier tracking link for updates and confirm that there has been no movement in the last 3 days. This process applies to domestic orders that are delayed more than 7 business days past the estimated delivery date.",
+    "keyword_grade": true
   },
   {
     "id": "q13",
@@ -190,9 +193,9 @@
     ],
     "top1_distance": 0.36835984741620087,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "After an account cancellation, customer data is retained for 90 days to allow for potential reactivation. Following this 90-day period, all data is permanently deleted and cannot be recovered. You should inform the customer of this 90-day window when processing their cancellation request.",
+    "keyword_grade": true
   },
   {
     "id": "q14",
@@ -203,11 +206,11 @@
       "ticket_005_billing_dispute.txt",
       "ticket_007_incorrect_charge_amount.txt"
     ],
-    "top1_distance": 0.5098668709698345,
+    "top1_distance": 0.5098668674698321,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "Duplicate charges of $29.99 on the same day are usually caused by a payment retry after a temporarily declined card. These charges are almost always automatically reversed by the payment processor within 5-7 business days.",
+    "keyword_grade": true
   },
   {
     "id": "q15",
@@ -215,13 +218,13 @@
     "expected_source": "ticket_001_password_lockout.txt",
     "retrieved_sources": [
       "ticket_001_password_lockout.txt",
-      "ticket_001_password_lockout.txt",
-      "ticket_002_refund_window.txt"
+      "ticket_002_refund_window.txt",
+      "customer support.pdf"
     ],
     "top1_distance": 0.4442002336725688,
     "doc_hit": true,
-    "classification": "SKIPPED_LLM_ERROR",
-    "answer": "(LLM call failed: 429 Client Error: Too Many Requests for url: https://openrouter.ai/api/v1/chat/completions)",
-    "keyword_grade": null
+    "classification": "RIGHT_DOC_RIGHT_ANSWER",
+    "answer": "After 3 failed login attempts, the account will lock for 15 minutes for security reasons. This is expected behavior. During this 15-minute lockout window, no reset email is sent by design. The customer should wait 15 minutes and then use the \"Forgot Password\" link again, which will work normally once the period ends. If the customer is still unable to log in after 15 minutes, the issue should be escalated to Tier 2 for a manual unlock.",
+    "keyword_grade": true
   }
 ]

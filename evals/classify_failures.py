@@ -3,8 +3,8 @@ Week 4: classify each eval question as WRONG_DOCUMENT (retrieval failure),
 RIGHT_DOC_WRONG_ANSWER (generation failure), or RIGHT_DOC_RIGHT_ANSWER.
 
 Uses an in-memory Qdrant collection (never touches the real persisted
-data) and the EXISTING retrieve.py (plain semantic search, unmodified) --
-this script diagnoses today's baseline, before any improvement is applied.
+data) and semantic_retrieve() (plain semantic search, unmodified) -- this
+script diagnoses the Week 3 baseline, before hybrid search/reranking.
 
 Minimizes OpenRouter calls: retrieval-only check costs 0 LLM calls; the
 generation check (1 LLM call) only runs for questions where the correct
@@ -12,16 +12,18 @@ document WAS retrieved -- there's nothing to grade otherwise.
 """
 
 import json
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
 import requests
 
-import vectorstore
-from chunk import load_and_chunk_all
+import ingestion
 from config import DEFAULT_TOP_K
-from embed import embed_chunks, get_embedding_model
 from eval_questions import EVAL_QUESTIONS
 from generate import answer_question
-from retrieve import retrieve
+from retrieval import semantic_retrieve
 
 RESULTS_FILE = "week4_classify_results.json"
 
@@ -39,13 +41,13 @@ def answer_contains_keywords(answer_text, expected_keywords):
 
 def build_eval_collection():
     """Chunk + embed + store everything into a fresh in-memory Qdrant client."""
-    chunks = load_and_chunk_all()
-    model = get_embedding_model()
-    chunks = embed_chunks(chunks, model=model)
+    chunks = ingestion.load_and_chunk_all()
+    model = ingestion.get_embedding_model()
+    chunks = ingestion.embed_chunks(chunks, model=model)
 
-    client = vectorstore.get_client(url=None)  # in-memory, real DB untouched
+    client = ingestion.get_client(url=None)  # in-memory, real DB untouched
     embeddings = [c["embedding"].tolist() for c in chunks]
-    vectorstore.build_collection(client, chunks, embeddings)
+    ingestion.build_collection(client, chunks, embeddings)
 
     return model, client
 
@@ -55,7 +57,7 @@ def classify_question(question_entry, model, client):
     question = question_entry["question"]
     expected_source = question_entry["expected_source"]
 
-    retrieved = retrieve(question, top_k=DEFAULT_TOP_K, model=model, client=client)
+    retrieved = semantic_retrieve(question, top_k=DEFAULT_TOP_K, model=model, client=client)
     retrieved_sources = [r["source"] for r in retrieved]
     doc_hit = expected_source in retrieved_sources
 
@@ -88,8 +90,8 @@ def classify_question(question_entry, model, client):
     result["answer"] = gen_result["answer"]
 
     if gen_result["skipped_llm"]:
-        # The doc showed up in retrieve()'s top-k, but generate.py's OWN
-        # (independent) distance check refused anyway -- still a
+        # The doc showed up in semantic_retrieve()'s top-k, but generate.py's
+        # OWN (independent) distance check refused anyway -- still a
         # generation-side failure to deliver a usable answer despite
         # having the right document available.
         result["classification"] = "RIGHT_DOC_WRONG_ANSWER"

@@ -1,10 +1,12 @@
 """Local replayable traces for the Week 5 error-analysis workflow."""
 from __future__ import annotations
-import json, os, time, uuid
+import json, time, uuid
 from datetime import datetime, timezone
 from pathlib import Path
 
-TRACE_DIR = Path(os.getenv("TRACE_DIR", "traces"))
+from config import TRACE_DIR as _TRACE_DIR
+
+TRACE_DIR = Path(_TRACE_DIR)
 
 def _now(): return datetime.now(timezone.utc).isoformat()
 def _path(trace_id):

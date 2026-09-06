@@ -15,26 +15,42 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from config import DATA_DIR, OPENROUTER_API_KEY
-from embed import get_embedding_model
-from loaders import LOADERS
-from store import build_database, get_client
-from vectorstore import all_chunks, count as count_chunks
+from config import CORS_ALLOWED_ORIGINS, DATA_DIR, DEFAULT_LLM_PROVIDER, DEFAULT_TEMPERATURE, GEMINI_API_KEY, GROQ_API_KEY
 from generate import answer_question
+from ingestion import LOADERS, all_chunks, build_database, get_client, get_embedding_model
+from ingestion import count as count_chunks
+from retrieval import retrieve
+from sessions import add_message, create_session, delete_session, get_session, list_sessions
 from tracing import annotate, get as get_trace, list_recent
-from retrieve import retrieve
 
 app = FastAPI(title="Ask My Tickets API")
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:5173", "http://127.0.0.1:5173"],
-    allow_methods=["GET", "POST"],
+    allow_origins=CORS_ALLOWED_ORIGINS,
+    # DELETE is required for /sessions/{id}; this list previously only had
+    # GET/POST, which happened to not matter locally because the Vite dev
+    # server's proxy makes every request same-origin (no browser CORS
+    # preflight ever occurs) -- but it would silently break session
+    # deletion for any frontend hosted on its own origin, without a proxy.
+    allow_methods=["GET", "POST", "DELETE"],
     allow_headers=["Content-Type"],
 )
 
 class AskRequest(BaseModel):
     question: str = Field(min_length=1, max_length=4000)
     top_k: int = Field(default=3, ge=1, le=20)
+    # "gemini" or "groq" -- which provider to try first for this request.
+    # The other is the automatic fallback if this one hits a 429.
+    provider: str | None = Field(default=None, pattern="^(gemini|groq)$")
+    # How random/deterministic the answer's wording is -- 0 is closest to
+    # deterministic, higher values allow more varied phrasing. Bounds match
+    # what OpenAI-compatible chat-completions endpoints (Gemini's and
+    # Groq's here) accept.
+    temperature: float = Field(default=DEFAULT_TEMPERATURE, ge=0.0, le=2.0)
+    # Which saved chat session this question belongs to. When set, both the
+    # question and the answer are appended to that session's history so the
+    # chatbot UI can show the whole conversation, not just the last turn.
+    session_id: str | None = Field(default=None, min_length=1, max_length=64)
 
 class TraceAnnotation(BaseModel):
     reviewed: bool | None = None
@@ -94,8 +110,8 @@ async def upload_document(file: UploadFile = File(...)):
 def health_check():
     """
     Checks each dependency the app needs and reports ok/error per check.
-    Does NOT call OpenRouter (would burn free-tier quota) -- only confirms
-    the API key is present, not that it's valid.
+    Does NOT call Gemini/Groq (would burn free-tier quota) -- only confirms
+    each API key is present, not that it's valid.
     """
     checks = {}
 
@@ -112,7 +128,8 @@ def health_check():
     except Exception as e:
         checks["vector_store"] = f"error: {e}"
 
-    checks["openrouter_key"] = "present" if OPENROUTER_API_KEY else "missing"
+    checks["gemini_key"] = "present" if GEMINI_API_KEY else "missing"
+    checks["groq_key"] = "present" if GROQ_API_KEY else "missing"
     checks["data_dir"] = "ok" if os.path.isdir(DATA_DIR) else f"error: '{DATA_DIR}' not found"
 
     overall = "ok" if all(
@@ -123,10 +140,68 @@ def health_check():
 
 @app.post("/ask")
 def ask_question(request: AskRequest):
+    if request.session_id and get_session(request.session_id) is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+
     try:
-        return answer_question(request.question, top_k=request.top_k, model=_get_model(), client=get_client(), return_trace_id=True)
+        result = answer_question(
+            request.question,
+            top_k=request.top_k,
+            model=_get_model(),
+            client=get_client(),
+            provider=request.provider or DEFAULT_LLM_PROVIDER,
+            temperature=request.temperature,
+            return_trace_id=True,
+        )
     except Exception as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    if request.session_id:
+        add_message(request.session_id, "user", request.question)
+        add_message(
+            request.session_id,
+            "assistant",
+            result.get("answer", ""),
+            extra={
+                "sources": result.get("sources"),
+                "provider": result.get("provider"),
+                "trace_id": result.get("trace_id"),
+            },
+        )
+
+    return result
+
+
+@app.post("/sessions")
+def new_session():
+    return create_session()
+
+
+@app.get("/sessions")
+def sessions():
+    return list_sessions()
+
+
+@app.get("/sessions/{session_id}")
+def session_detail(session_id: str):
+    try:
+        session = get_session(session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    if session is None:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return session
+
+
+@app.delete("/sessions/{session_id}")
+def remove_session(session_id: str):
+    try:
+        deleted = delete_session(session_id)
+    except ValueError as exc:
+        raise HTTPException(status_code=422, detail=str(exc)) from exc
+    if not deleted:
+        raise HTTPException(status_code=404, detail="Session not found")
+    return {"deleted": session_id}
 
 @app.post("/retrieve")
 def inspect_retrieval(request: RetrieveRequest):

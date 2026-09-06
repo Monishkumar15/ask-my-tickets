@@ -1,0 +1,129 @@
+{
+  "id": "e991ab842fd848fdac0281a37116ee88",
+  "title": "how does customer support ticketing work and what happens to...",
+  "created_at": "2026-09-06T13:24:13.543055+00:00",
+  "updated_at": "2026-09-06T17:23:08.698220+00:00",
+  "messages": [
+    {
+      "role": "user",
+      "content": "how does customer support ticketing work and what happens to my data if I cancel my subscription",
+      "created_at": "2026-09-06T14:02:49.581395+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Ticketing software helps teams manage and respond to written customer support requests, like emails. After cancellation, customer data is retained for 90 days in case the customer wants to reactivate.",
+      "created_at": "2026-09-06T14:02:49.601570+00:00",
+      "sources": [
+        "ticket_004_account_cancellation.txt",
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "df9040c8c0114aeeaa63510f6b958d5c"
+    },
+    {
+      "role": "user",
+      "content": "What are the three trends that have changed customer experience over the last 20 years?",
+      "created_at": "2026-09-06T17:15:19.623869+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "The provided context mentions that there are three trends that have changed how we think about customer experience over the last 20 years, but it only explicitly identifies the first one:\n\n1. **Speed, accuracy, and empathy**: Consumers of financial services, on-demand services, e-commerce products, and travel and hospitality experiences now expect fast, accurate, and empathetic customer service, as it serves as a vehicle for repeat purchases, positive social validation, referrals, and increased basket size.\n\nI don't know the second and third trends based on the available documents.",
+      "created_at": "2026-09-06T17:15:19.655714+00:00",
+      "sources": [
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "fe1668c0200748fa9f0bd005a0c31442"
+    },
+    {
+      "role": "user",
+      "content": "What is the recommended management ratio for customer support teams according to the guide?",
+      "created_at": "2026-09-06T17:16:12.659357+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "I don't know based on the available documents.",
+      "created_at": "2026-09-06T17:16:12.675411+00:00",
+      "sources": [
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "cd1742e349e14fcdb4b918929dc02e9d"
+    },
+    {
+      "role": "user",
+      "content": "What cash offer does Zappos provide to new employees at the end of basic training?",
+      "created_at": "2026-09-06T17:16:42.480985+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "At the end of basic training, new employees at Zappos are offered a cash reward to leave the company if they are not willing to live by the Zappos mantra, “Powered by Service.”",
+      "created_at": "2026-09-06T17:16:42.497292+00:00",
+      "sources": [
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "cd5a5ff28f9244d8a62638a4b128094c"
+    },
+    {
+      "role": "user",
+      "content": "What percentage of consumers reported interacting with automated channels (like live chat) in the 2018 Forrester report?",
+      "created_at": "2026-09-06T17:17:25.633669+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "I don't know based on the available documents. \n\nThe provided text mentions that a 2018 report showed 49% of all consumers were interacting with automated channels, but it does not specify that this report was from Forrester. The context only attributes a 2013 report regarding voice support to Forrester.",
+      "created_at": "2026-09-06T17:17:25.653574+00:00",
+      "sources": [
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "ef242d770d5f4013995abac95610cf5d"
+    },
+    {
+      "role": "user",
+      "content": "Which knowledge base software provides smooth integration with Slack and employee systems?",
+      "created_at": "2026-09-06T17:21:20.734004+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "The knowledge base software that provides smooth integration with Slack and other employee systems is Elevio.",
+      "created_at": "2026-09-06T17:21:20.747427+00:00",
+      "sources": [
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "630b9633567c44f5878d9f406ba5690c"
+    },
+    {
+      "role": "user",
+      "content": "What are the key differences in pricing and target focus between Acquire’s live chat and products like Intercom or Drift?",
+      "created_at": "2026-09-06T17:22:04.609279+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Regarding the differences in pricing and target focus, the provided documents state the following:\n\n*   **Pricing:** Products like Intercom and Drift are priced much higher because they charge per user and per contact session. In contrast, live chat software designed for support is priced per seat only (per user).\n*   **Target Focus:** Products like Intercom and Drift are intended specifically for sales and marketing. Acquire’s live chat product is designed for support. Additionally, Acquire features secure cobrowsing, AI chatbots, live chat, and video calling to resolve complex sales, service, and support issues across all channels in real-time.",
+      "created_at": "2026-09-06T17:22:04.664121+00:00",
+      "sources": [
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "970b99405eb14fd6b9bf47bb278945d7"
+    },
+    {
+      "role": "user",
+      "content": "What are the three steps outlined for building a knowledge base?",
+      "created_at": "2026-09-06T17:23:08.683442+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "I don't know based on the available documents.",
+      "created_at": "2026-09-06T17:23:08.698200+00:00",
+      "sources": [
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "cc9034fb1ddb43f3a142494786f4d19c"
+    }
+  ]
+}

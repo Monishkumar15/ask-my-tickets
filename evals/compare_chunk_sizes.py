@@ -6,10 +6,13 @@ your actual app's data is left untouched. No LLM/OpenRouter calls here --
 this is a pure retrieval comparison, so it costs nothing and has no rate limit.
 """
 
-import vectorstore
-from chunk import load_and_chunk_all
+import os
+import sys
+
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+import ingestion
 from config import QUERY_INSTRUCTION
-from embed import get_embedding_model
 
 # One test question per ticket, deliberately reworded so it does NOT share
 # exact words with the source document -- a real test of semantic matching.
@@ -34,18 +37,18 @@ CHUNK_CONFIGS = [
 
 def build_temp_collection(chunk_size, overlap_sentences, model, collection_name):
     """Chunk + embed + store into a fresh in-memory (non-persistent) Qdrant collection."""
-    chunks = load_and_chunk_all(chunk_size=chunk_size, overlap_sentences=overlap_sentences)
+    chunks = ingestion.load_and_chunk_all(chunk_size=chunk_size, overlap_sentences=overlap_sentences)
 
     texts = [c["text"] for c in chunks]
     embeddings = model.encode(texts).tolist()
 
-    client = vectorstore.get_client(url=None)  # in-memory only, nothing written to disk
-    vectorstore.build_collection(client, chunks, embeddings, collection_name=collection_name)
+    client = ingestion.get_client(url=None)  # in-memory only, nothing written to disk
+    ingestion.build_collection(client, chunks, embeddings, collection_name=collection_name)
     return client, len(chunks)
 
 
 def run_comparison():
-    model = get_embedding_model()
+    model = ingestion.get_embedding_model()
 
     for config in CHUNK_CONFIGS:
         collection_name = f"test_{config['chunk_size']}"
@@ -61,7 +64,7 @@ def run_comparison():
             # Qdrant wants a single flat vector, not a batch -- [0] unwraps it.
             query_embedding = model.encode([query_text]).tolist()[0]
 
-            results = vectorstore.search(client, query_embedding, top_k=1, collection_name=collection_name)
+            results = ingestion.search(client, query_embedding, top_k=1, collection_name=collection_name)
             top_source = results[0]["source"]
             top_distance = results[0]["distance"]
 

@@ -155,3 +155,58 @@ testing as a genuine next step.
   chunking change, not a retrieval-fusion change).
 - ⬜ Generation-failure classification (RIGHT_DOC_WRONG_ANSWER vs.
   RIGHT_DOC_RIGHT_ANSWER) — blocked by quota, to be completed once reset.
+
+## 8. Update — re-run after the OpenRouter → Gemini/Groq switch
+
+The quota blocker in Section 6 no longer applies: OpenRouter (50
+requests/day) was later replaced entirely by Gemini (primary) + Groq
+(automatic 429 fallback) — see `README.md` for that change's own writeup.
+That removes the only reason Section 2's generation-failure classification
+was left blank. Re-ran `classify_failures.py` unmodified (still tests the
+Week 3 semantic-only baseline, on purpose, so it stays comparable to
+Section 4's numbers) against the current codebase.
+
+**Results (15/15 questions, 0 LLM errors this time):**
+
+| Classification | Count |
+|---|---|
+| WRONG_DOCUMENT | 0/15 |
+| RIGHT_DOC_WRONG_ANSWER | 1/15 |
+| RIGHT_DOC_RIGHT_ANSWER | 14/15 |
+
+Retrieval is unchanged from Section 4 (every question still finds its
+correct document at top_k=3) — this run's news is entirely on the
+generation side, which simply didn't exist as data before.
+
+**The one failure, with evidence:** q1 ("why did my account get locked when
+I typed my password wrong a few times?") retrieved the correct document
+(`ticket_001_password_lockout.txt`, top-1 distance 0.400) — confirmed
+correct, not a retrieval gap. The retrieved context (chunks 1 and 2 of 3)
+explicitly contains *"the account locks for **15 minutes** for security
+reasons"* and *"wait **15 minutes** and then use the Forgot Password
+link"* — the fact was available. The model's actual answer was:
+
+> "Your account gets locked after 3 failed login attempts for security
+> reasons."
+
+Correct as far as it goes, but it never mentions the 15-minute duration —
+the specific fact this question's keyword check expects. **This is a
+genuine generation-completeness gap**: the right document was retrieved,
+the right fact was sitting in context, and the model chose a shorter
+answer that dropped it. Not a hallucination (nothing false was stated),
+not a retrieval miss — just an incomplete answer to a question with two
+parts ("why" and implicitly "for how long").
+
+**Why this matters for future work:** this is exactly the generation-side
+evidence Section 6 said was missing, and it's a different failure shape
+than q14's retrieval-ranking issue — a reminder that "right document
+retrieved" doesn't guarantee "complete answer produced." A stricter prompt
+instruction (e.g. explicitly asking for any duration/timeframe mentioned in
+the context) would plausibly fix this specific case, though it wasn't
+tested here since this section deliberately re-ran the *unmodified* Week 3
+baseline for a clean before/after comparison, not the current, more
+detailed prompt already in use in `generate.py` today.
+
+Updated checklist: the previously-blocked item is now ✅ — generation-failure
+classification is complete, 14/15 correct, 1/15 identified with root-cause
+evidence in the same evidence-based style as Section 2.

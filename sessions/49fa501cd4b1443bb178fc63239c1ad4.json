@@ -1,0 +1,218 @@
+{
+  "id": "49fa501cd4b1443bb178fc63239c1ad4",
+  "title": "why did my account get locked?\"",
+  "created_at": "2026-09-06T17:54:53.498082+00:00",
+  "updated_at": "2026-09-06T18:20:26.548186+00:00",
+  "messages": [
+    {
+      "role": "user",
+      "content": "why did my account get locked?\"",
+      "created_at": "2026-09-06T17:55:08.069746+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Your account got locked because there were 3 failed login attempts. This is expected behavior for security reasons.",
+      "created_at": "2026-09-06T17:55:08.084173+00:00",
+      "sources": [
+        "ticket_001_password_lockout.txt"
+      ],
+      "provider": "gemini",
+      "trace_id": "f0cc51bfd18a4e46b8447b758c646d35"
+    },
+    {
+      "role": "user",
+      "content": "what happens to my data if I cancel my subscription?",
+      "created_at": "2026-09-06T17:55:36.750665+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "After cancellation, your customer data is retained for 90 days in case you wish to reactivate your account.",
+      "created_at": "2026-09-06T17:55:36.771098+00:00",
+      "sources": [
+        "ticket_004_account_cancellation.txt"
+      ],
+      "provider": "gemini",
+      "trace_id": "363d87c6c7df4fd3b756d94c2d3e00d6"
+    },
+    {
+      "role": "user",
+      "content": "how does customer support ticketing work and what happens to my data if I cancel my subscription",
+      "created_at": "2026-09-06T17:56:02.264361+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Regarding how customer support ticketing works: Ticketing software is used by teams to manage and respond to written customer support requests, such as emails.\n\nRegarding what happens to your data if you cancel your subscription: I don't know based on the available documents.",
+      "created_at": "2026-09-06T17:56:02.288442+00:00",
+      "sources": [
+        "ticket_004_account_cancellation.txt",
+        "customer support.pdf",
+        "ticket_003_shipping_delay.txt"
+      ],
+      "provider": "gemini",
+      "trace_id": "2edcb23a37654428a2a6cd87112bab95"
+    },
+    {
+      "role": "user",
+      "content": "why is my order delayed, how do I get a refund for a defective item, and why was I charged the wrong amount",
+      "created_at": "2026-09-06T17:56:52.469399+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Regarding why your order is delayed: The provided documents do not state why an order might be delayed, only the resolution process for domestic orders delayed more than 7 business days.\n\nRegarding how to get a refund for a defective item: You must report the defect within 90 days of delivery and provide a photo of the damage. Defective items are eligible for a full refund regardless of the purchase date.\n\nRegarding why you were charged the wrong amount: The documents do not explain why an incorrect charge occurs, only that such charges (excluding duplicates) are not automatically reversed by the payment processor.",
+      "created_at": "2026-09-06T17:56:52.508683+00:00",
+      "sources": [
+        "ticket_006_defective_item_refund.txt",
+        "ticket_003_shipping_delay.txt",
+        "ticket_007_incorrect_charge_amount.txt",
+        "ticket_002_refund_window.txt",
+        "ticket_005_billing_dispute.txt"
+      ],
+      "provider": "gemini",
+      "trace_id": "5e97c87d24b04f91a589fe8cb1092574"
+    },
+    {
+      "role": "user",
+      "content": "what's the best pizza topping",
+      "created_at": "2026-09-06T17:57:33.054232+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find relevant information to answer \"what's the best pizza topping\". Try asking something related to the topics covered in the documents.",
+      "created_at": "2026-09-06T17:57:33.074659+00:00",
+      "sources": [],
+      "provider": null,
+      "trace_id": "3eb435c4aedf498fb1f8adf98d203bd9"
+    },
+    {
+      "role": "user",
+      "content": "Set toggle to Gemini, ask any grounded question",
+      "created_at": "2026-09-06T17:58:01.841366+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find relevant information to answer \"Set toggle to Gemini, ask any grounded question\". Try asking something related to the topics covered in the documents.",
+      "created_at": "2026-09-06T17:58:01.855301+00:00",
+      "sources": [],
+      "provider": null,
+      "trace_id": "e745f405ed3f4b85abf95a4165985443"
+    },
+    {
+      "role": "user",
+      "content": "Set Top K to 1, ask the 3-topic question from #3",
+      "created_at": "2026-09-06T17:58:33.853257+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "1. Regarding Top KPIs for ticketing and shared inbox support workflows: Measuring and improving performance is as important as setting up your product stack and team structure. A range of different KPIs should be used to build an understanding of the customer experience and to inform the customer engagement strategy as the team learns and grows.\n\n2. Regarding building content: You should tackle the most frequently asked questions first before moving on to more nuanced ones, as these will be most helpful to customers.\n\n3. Regarding crafting a voice and personality: Your bot should have a brand and personality that reflects your company.",
+      "created_at": "2026-09-06T17:58:33.868642+00:00",
+      "sources": [
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "43619544c7a4463d8d59140ffd15cc59"
+    },
+    {
+      "role": "user",
+      "content": "how do I contact customer support\"",
+      "created_at": "2026-09-06T18:00:30.437805+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "I don't know based on the available documents.",
+      "created_at": "2026-09-06T18:00:30.471843+00:00",
+      "sources": [
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "e21b9dab214b4e06b6c8096738960325"
+    },
+    {
+      "role": "user",
+      "content": "why did my account get locked?\"",
+      "created_at": "2026-09-06T18:17:00.186984+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Your account was locked because you made 3 failed login attempts. This is expected behavior for security reasons.",
+      "created_at": "2026-09-06T18:17:00.203340+00:00",
+      "sources": [
+        "ticket_001_password_lockout.txt"
+      ],
+      "provider": "gemini",
+      "trace_id": "b1b574748b984667be78d3d4e3805b17"
+    },
+    {
+      "role": "user",
+      "content": "what happens to my data if I cancel my subscription?",
+      "created_at": "2026-09-06T18:17:11.021576+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "After cancellation, your customer data is retained for 90 days in case you decide to reactivate your subscription.",
+      "created_at": "2026-09-06T18:17:11.040555+00:00",
+      "sources": [
+        "ticket_004_account_cancellation.txt"
+      ],
+      "provider": "gemini",
+      "trace_id": "244dd3f09b7743db8c0095e8a103a85a"
+    },
+    {
+      "role": "user",
+      "content": "how does customer support ticketing work and what happens to my data if I cancel my subscription",
+      "created_at": "2026-09-06T18:17:19.895906+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Regarding how customer support ticketing works: Ticketing software helps teams manage and respond to written customer support requests, such as emails.\n\nRegarding what happens to your data if you cancel your subscription: After cancellation, customer data is retained for 90 days in case the customer wants to reactivate.",
+      "created_at": "2026-09-06T18:17:19.917541+00:00",
+      "sources": [
+        "ticket_004_account_cancellation.txt",
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "aba45b9a4b8b43a8906d963cb9daff7a"
+    },
+    {
+      "role": "user",
+      "content": "what's the best pizza topping",
+      "created_at": "2026-09-06T18:17:41.774424+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find relevant information to answer \"what's the best pizza topping\". Try asking something related to the topics covered in the documents.",
+      "created_at": "2026-09-06T18:17:41.802629+00:00",
+      "sources": [],
+      "provider": null,
+      "trace_id": "d81ed96114a74f44829b2af664412dbc"
+    },
+    {
+      "role": "user",
+      "content": "Set toggle to Gemini, ask any grounded question",
+      "created_at": "2026-09-06T18:17:55.312659+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "I couldn't find relevant information to answer \"Set toggle to Gemini, ask any grounded question\". Try asking something related to the topics covered in the documents.",
+      "created_at": "2026-09-06T18:17:55.329446+00:00",
+      "sources": [],
+      "provider": null,
+      "trace_id": "be48042f9166434a96cfafbecd8d7e52"
+    },
+    {
+      "role": "user",
+      "content": "how does customer support ticketing work and what happens to my data if I cancel my subscription",
+      "created_at": "2026-09-06T18:20:26.532361+00:00"
+    },
+    {
+      "role": "assistant",
+      "content": "Ticketing software works by helping teams manage and respond to written customer support requests, such as emails.\n\nRegarding your subscription, it can be cancelled at any time by going to Account Settings > Subscription > Cancel Plan. The cancellation becomes effective at the end of the current billing cycle, and no partial refunds are provided for any remaining days. After you cancel, your data is retained for 90 days in case you decide to reactivate your account.",
+      "created_at": "2026-09-06T18:20:26.548165+00:00",
+      "sources": [
+        "ticket_004_account_cancellation.txt",
+        "customer support.pdf"
+      ],
+      "provider": "gemini",
+      "trace_id": "5350d43002fd44668d237b8221db6a20"
+    }
+  ]
+}
