@@ -1,0 +1,222 @@
+[
+  {
+    "id": "q1",
+    "question": "why did my account get locked when I typed my password wrong a few times?",
+    "answer": "Your account gets locked for security reasons after 3 failed login attempts.",
+    "skipped_llm": false,
+    "human_verdict": "POOR",
+    "human_reason": "Correct but incomplete -- drops the 15-min duration and next steps",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant correctly explains the reason for the lockout as stated in the context, though it could have been more helpful by mentioning the 15-minute duration and the solution for the password reset.",
+    "context": "Subject: Password reset not working after failed logins Customer reports that after 3 failed login attempts, their account gets locked and the \"Forgot Password\" email never arrives. Resolution: This is expected behavior.\n\nResolution: This is expected behavior. After 3 failed login attempts, the account locks for 15 minutes for security reasons. During the lockout window, no reset email is sent by design.\n\nDuring the lockout window, no reset email is sent by design. Ask the customer to wait 15 minutes and then use the \"Forgot Password\" link again — it will work normally once the lockout period ends. If the customer still cannot log in after 15 minutes, escalate to Tier 2 for a manual unlock."
+  },
+  {
+    "id": "q2",
+    "question": "my order still hasn't shown up, it's way past when it should have",
+    "answer": "Your order is currently 4 business days past the estimated delivery date (9 business days elapsed vs. 5 business days estimated).\n\nRegarding the resolution process for your delay:\n*   Because your order has not yet been delayed more than 7 business days past the estimated delivery date, the policy dictates that agents should first check the carrier tracking link for updates.\n*   I do not know what the specific resolution will be if your order remains undelivered beyond 7 business days, as the requirement to file a \"lost in transit\" claim and offer a reshipment or refund only applies once the delay exceeds that 7-business-day threshold and shows no tracking movement for 3 days.",
+    "skipped_llm": false,
+    "human_verdict": "POOR",
+    "human_reason": "Self-contradictory -- explains the >7-day process then says it does not know that same thing",
+    "judge_verdict": "POOR",
+    "judge_reason": "The assistant incorrectly states the order is only 4 days late and claims the 7-day threshold has not been met, despite the context stating the order is 9 business days past the estimate (which is 4 days past the 5-day estimate, but the delay itself is 9 days, meeting the >7 day criteria).",
+    "context": "Customer's order was estimated to arrive in 5 business days but it has now been 9 business days with no delivery. Resolution: For domestic orders delayed more than 7 business days past the estimated delivery date, agents should first check the carrier tracking link for updates.\n\nResolution: For domestic orders delayed more than 7 business days past the estimated delivery date, agents should first check the carrier tracking link for updates. If tracking shows no movement in the last 3 days, file a \"lost in transit\" claim with the carrier and offer the customer either a full reshipment at no cost or a full refund, whichever they prefer.\n\nSubject: Order delayed beyond estimated delivery date Customer's order was estimated to arrive in 5 business days but it has now been 9 business days with no delivery."
+  },
+  {
+    "id": "q3",
+    "question": "3 attempts and now I'm locked out, is that normal?",
+    "answer": "Yes, this is expected behavior. After 3 failed login attempts, the account locks for 15 minutes for security reasons. During this lockout window, no reset email is sent by design. You should wait 15 minutes and then use the \"Forgot Password\" link again; it will work normally once the lockout period ends. If you still cannot log in after 15 minutes, the issue should be escalated to Tier 2 for a manual unlock.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Matches source fully",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The reply accurately explains the lockout policy and provides the correct troubleshooting steps as outlined in the context, without leaking internal instructions.",
+    "context": "Resolution: This is expected behavior. After 3 failed login attempts, the account locks for 15 minutes for security reasons. During the lockout window, no reset email is sent by design.\n\nSubject: Password reset not working after failed logins Customer reports that after 3 failed login attempts, their account gets locked and the \"Forgot Password\" email never arrives. Resolution: This is expected behavior.\n\nDuring the lockout window, no reset email is sent by design. Ask the customer to wait 15 minutes and then use the \"Forgot Password\" link again — it will work normally once the lockout period ends. If the customer still cannot log in after 15 minutes, escalate to Tier 2 for a manual unlock."
+  },
+  {
+    "id": "q4",
+    "question": "I want to go to Account Settings, Subscription, then Cancel Plan -- what happens after that?",
+    "answer": "After selecting \"Cancel Plan\" in Account Settings > Subscription, the following occurs:\n\n*   **Subscription status:** Your cancellation will be effective at the end of the current billing cycle. There are no partial refunds provided for any remaining days.\n*   **Customer data:** Your data is retained for 90 days following the cancellation in case you decide to reactivate your account.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Matches source: end of billing cycle, no partial refund, 90-day retention",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The reply accurately addresses both parts of the customer's question using only the information provided in the context.",
+    "context": "Resolution: Subscriptions can be cancelled anytime from Account Settings > Subscription > Cancel Plan, effective at the end of the current billing cycle (no partial refunds for the remaining days). After cancellation, customer data is retained for 90 days in case the customer wants to reactivate.\n\nCustomer wants to cancel their subscription and asks what happens to their saved data. Resolution: Subscriptions can be cancelled anytime from Account Settings > Subscription > Cancel Plan, effective at the end of the current billing cycle (no partial refunds for the remaining days).\n\nSubject: How to cancel a subscription and data retention Customer wants to cancel their subscription and asks what happens to their saved data."
+  },
+  {
+    "id": "q5",
+    "question": "there are two $29.99 charges on my statement from the same day",
+    "answer": "Duplicate charges of $29.99 on the same day are usually caused by a payment retry after a temporarily declined card. These charges are almost always automatically reversed by the payment processor within 5-7 business days.",
+    "skipped_llm": false,
+    "human_verdict": "POOR",
+    "human_reason": "Drops the verify/escalate-after-7-days follow-up from the source",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant accurately addressed the customer's concern using the specific resolution provided in the context regarding duplicate charges.",
+    "context": "Customer noticed two identical charges of $29.99 on the same day and believes they were billed twice by mistake. Resolution: Duplicate charges on the same day for the same amount are usually caused by a payment retry after a temporarily declined card, and are almost always automatically reversed by the payment processor within 5-7 business days.\n\nSubject: Customer disputes a duplicate charge Customer noticed two identical charges of $29.99 on the same day and believes they were billed twice by mistake.\n\nSubject: Customer was charged the wrong amount Customer says they were charged $49.99 instead of the advertised $29.99 price. Resolution: Incorrect-amount charges (not duplicates) are not auto-reversed by the payment processor."
+  },
+  {
+    "id": "q6",
+    "question": "it's been 45 days since I bought it, can I still get money back?",
+    "answer": "Yes, you can still receive money back. Requests made between 31 and 60 days after purchase are eligible for a 50% partial refund at the agent's discretion, provided the account shows minimal usage. For your specific case (45 days, no usage), you should be offered a 50% partial refund.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Matches exactly: 45 days, no usage, 50% partial refund",
+    "judge_verdict": "POOR",
+    "judge_reason": "The assistant correctly identifies the eligibility for a 50% refund based on the 31-60 day policy, but it inappropriately leaks internal instructions by explicitly telling the customer they 'should be offered' a 50% refund rather than simply offering it.",
+    "context": "Subject: Customer requesting refund after 45 days Customer purchased a subscription 45 days ago and is requesting a full refund, stating they never used the product. Resolution: Our standard refund policy allows full refunds within 30 days of purchase, no questions asked.\n\nRequests after 60 days are not eligible for any refund except in cases of billing error or fraud. For this case (45 days, no usage), offer the 50% partial refund and document the reason in the ticket.\n\nResolution: Our standard refund policy allows full refunds within 30 days of purchase, no questions asked. Requests made between 31-60 days are eligible for a 50% partial refund at the agent's discretion, provided the account shows minimal usage."
+  },
+  {
+    "id": "q7",
+    "question": "carrier says lost in transit, what do we do for the customer?",
+    "answer": "If the carrier tracking shows no movement in the last 3 days, you must file a \"lost in transit\" claim with the carrier and offer the customer either a full reshipment at no cost or a full refund, depending on their preference.",
+    "skipped_llm": false,
+    "human_verdict": "POOR",
+    "human_reason": "Reads as an instruction to an agent (\"you must file...offer the customer\"), not a direct customer-facing reply -- leaked internal phrasing.",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant correctly identifies the required actions for a lost in transit package as specified in the context, though it uses a slightly instructional tone rather than a customer-facing one.",
+    "context": "If tracking shows no movement in the last 3 days, file a \"lost in transit\" claim with the carrier and offer the customer either a full reshipment at no cost or a full refund, whichever they prefer. Delays under 7 business days are considered normal and do not qualify for compensation.\n\nResolution: For domestic orders delayed more than 7 business days past the estimated delivery date, agents should first check the carrier tracking link for updates. If tracking shows no movement in the last 3 days, file a \"lost in transit\" claim with the carrier and offer the customer either a full reshipment at no cost or a full refund, whichever they prefer.\n\nDoes your customer support team know when to escalate? Escalating a request Does your software allow for seamless escalation handoffs? Are you losing customers at escalation points? If the customer disconnects, do your records allow you to return to the inquiry later?"
+  },
+  {
+    "id": "q11",
+    "question": "the item I got was damaged, will you refund me",
+    "answer": "Yes, you are eligible for a full refund for a defective item regardless of the purchase date, provided that you meet the following conditions:\n\n*   You report the defect within 90 days of the item's delivery.\n*   You provide a photo of the damage.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Matches exactly",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant correctly identified the policy for defective items as stated in the context and clearly outlined the necessary conditions for the customer.",
+    "context": "Subject: Refund request for a defective item Customer says the product arrived broken and wants a refund. Resolution: Defective items are eligible for a full refund regardless of purchase date, as long as the customer reports the defect within 90 days of delivery and provides a photo of the damage.\n\nResolution: Defective items are eligible for a full refund regardless of purchase date, as long as the customer reports the defect within 90 days of delivery and provides a photo of the damage. This overrides the standard 30/31-60/60+ day refund window, which only applies to non-defective returns.\n\nRequests after 60 days are not eligible for any refund except in cases of billing error or fraud. For this case (45 days, no usage), offer the 50% partial refund and document the reason in the ticket."
+  },
+  {
+    "id": "q12",
+    "question": "you guys charged me the wrong price",
+    "answer": "For incorrect-amount charges (where you were charged $49.99 instead of the advertised $29.99 price), please note that these are not auto-reversed by the payment processor.\n\nTo resolve this, you must escalate the issue directly to the billing team. You should provide a screenshot of the advertised price and the actual charge. Once escalated, the billing team will manually adjust the charge within 2 business days.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Matches exactly",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant correctly identifies the issue, explains the process, and provides the specific steps and timeframe for resolution as outlined in the context.",
+    "context": "Subject: Customer was charged the wrong amount Customer says they were charged $49.99 instead of the advertised $29.99 price. Resolution: Incorrect-amount charges (not duplicates) are not auto-reversed by the payment processor.\n\nSubject: Customer disputes a duplicate charge Customer noticed two identical charges of $29.99 on the same day and believes they were billed twice by mistake.\n\nResolution: Incorrect-amount charges (not duplicates) are not auto-reversed by the payment processor. Escalate directly to the billing team with a screenshot of the advertised price and the actual charge; the billing team will manually adjust the charge within 2 business days."
+  },
+  {
+    "id": "q8",
+    "question": "exactly how many days after cancelling is my data deleted?",
+    "answer": "After cancelling your subscription, your customer data is retained for 90 days to allow for potential account reactivation. After those 90 days, all data is permanently deleted and cannot be recovered.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Matches exactly",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant accurately answers the customer's question using the specific 90-day timeframe provided in the context.",
+    "context": "After cancellation, customer data is retained for 90 days in case the customer wants to reactivate. After 90 days, all data is permanently deleted and cannot be recovered. Inform the customer of this 90-day window when processing a cancellation request.\n\nResolution: Subscriptions can be cancelled anytime from Account Settings > Subscription > Cancel Plan, effective at the end of the current billing cycle (no partial refunds for the remaining days). After cancellation, customer data is retained for 90 days in case the customer wants to reactivate.\n\nCustomer wants to cancel their subscription and asks what happens to their saved data. Resolution: Subscriptions can be cancelled anytime from Account Settings > Subscription > Cancel Plan, effective at the end of the current billing cycle (no partial refunds for the remaining days)."
+  },
+  {
+    "id": "q9",
+    "question": "what percentage refund do I get if I ask between 31 and 60 days after buying?",
+    "answer": "If you ask for a refund between 31 and 60 days after purchase, you are eligible for a 50% partial refund. This is granted at the agent's discretion, provided the account shows minimal usage.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Matches exactly",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The reply accurately reflects the policy stated in the context regarding the 50% partial refund eligibility and the conditions required for it.",
+    "context": "Resolution: Our standard refund policy allows full refunds within 30 days of purchase, no questions asked. Requests made between 31-60 days are eligible for a 50% partial refund at the agent's discretion, provided the account shows minimal usage.\n\nRequests made between 31-60 days are eligible for a 50% partial refund at the agent's discretion, provided the account shows minimal usage. Requests after 60 days are not eligible for any refund except in cases of billing error or fraud.\n\nResolution: Defective items are eligible for a full refund regardless of purchase date, as long as the customer reports the defect within 90 days of delivery and provides a photo of the damage. This overrides the standard 30/31-60/60+ day refund window, which only applies to non-defective returns."
+  },
+  {
+    "id": "q10",
+    "question": "how many business days do you wait before filing a lost-in-transit claim?",
+    "answer": "To determine if a \"lost in transit\" claim should be filed, you must first check the carrier tracking link for updates. If the tracking shows no movement in the last 3 days, you may file a \"lost in transit\" claim. \n\nRegarding the shipping delay itself, for domestic orders, you must wait until the order is delayed more than 7 business days past the estimated delivery date before taking action. Delays under 7 business days are considered normal and do not qualify for compensation.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Specific fact (3 days) present and correctly framed",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant correctly identifies the two conditions required for a lost-in-transit claim (7 business days past the estimated delivery date and 3 days of no movement) as specified in the context.",
+    "context": "If tracking shows no movement in the last 3 days, file a \"lost in transit\" claim with the carrier and offer the customer either a full reshipment at no cost or a full refund, whichever they prefer. Delays under 7 business days are considered normal and do not qualify for compensation.\n\nResolution: For domestic orders delayed more than 7 business days past the estimated delivery date, agents should first check the carrier tracking link for updates. If tracking shows no movement in the last 3 days, file a \"lost in transit\" claim with the carrier and offer the customer either a full reshipment at no cost or a full refund, whichever they prefer.\n\nCustomer's order was estimated to arrive in 5 business days but it has now been 9 business days with no delivery. Resolution: For domestic orders delayed more than 7 business days past the estimated delivery date, agents should first check the carrier tracking link for updates."
+  },
+  {
+    "id": "q13",
+    "question": "90 days delete data",
+    "answer": "After a subscription is cancelled, customer data is retained for 90 days to allow for potential reactivation. Once this 90-day window has passed, all customer data is permanently deleted and cannot be recovered. You must inform the customer of this 90-day window when processing their cancellation request.",
+    "skipped_llm": false,
+    "human_verdict": "POOR",
+    "human_reason": "Contains \"You must inform the customer...\" -- an instruction addressed to an agent, not something said to a customer.",
+    "judge_verdict": "POOR",
+    "judge_reason": "The assistant included internal instructions meant for the agent ('You must inform the customer...') in the response provided to the customer.",
+    "context": "After cancellation, customer data is retained for 90 days in case the customer wants to reactivate. After 90 days, all data is permanently deleted and cannot be recovered. Inform the customer of this 90-day window when processing a cancellation request.\n\nResolution: Subscriptions can be cancelled anytime from Account Settings > Subscription > Cancel Plan, effective at the end of the current billing cycle (no partial refunds for the remaining days). After cancellation, customer data is retained for 90 days in case the customer wants to reactivate.\n\nCustomer wants to cancel their subscription and asks what happens to their saved data. Resolution: Subscriptions can be cancelled anytime from Account Settings > Subscription > Cancel Plan, effective at the end of the current billing cycle (no partial refunds for the remaining days)."
+  },
+  {
+    "id": "q14",
+    "question": "29.99 x2 reversed",
+    "answer": "Duplicate charges of $29.99 on the same day are usually caused by a payment retry after a temporarily declined card and are almost always automatically reversed by the payment processor within 5-7 business days.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Matches exactly",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant correctly identified the issue as a duplicate charge and provided the accurate resolution timeframe of 5-7 business days as stated in the context.",
+    "context": "Customer noticed two identical charges of $29.99 on the same day and believes they were billed twice by mistake. Resolution: Duplicate charges on the same day for the same amount are usually caused by a payment retry after a temporarily declined card, and are almost always automatically reversed by the payment processor within 5-7 business days.\n\nSubject: Customer was charged the wrong amount Customer says they were charged $49.99 instead of the advertised $29.99 price. Resolution: Incorrect-amount charges (not duplicates) are not auto-reversed by the payment processor.\n\nSubject: Customer disputes a duplicate charge Customer noticed two identical charges of $29.99 on the same day and believes they were billed twice by mistake."
+  },
+  {
+    "id": "q15",
+    "question": "3 attempts locked 15 min",
+    "answer": "After 3 failed login attempts, the account will lock for 15 minutes for security reasons. This is expected behavior. During this 15-minute lockout window, no password reset email is sent by design.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Matches core facts for a terse query",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant accurately explains the lockout policy and the reason for the missing email as described in the context.",
+    "context": "Resolution: This is expected behavior. After 3 failed login attempts, the account locks for 15 minutes for security reasons. During the lockout window, no reset email is sent by design.\n\nDuring the lockout window, no reset email is sent by design. Ask the customer to wait 15 minutes and then use the \"Forgot Password\" link again — it will work normally once the lockout period ends. If the customer still cannot log in after 15 minutes, escalate to Tier 2 for a manual unlock.\n\nSubject: Password reset not working after failed logins Customer reports that after 3 failed login attempts, their account gets locked and the \"Forgot Password\" email never arrives. Resolution: This is expected behavior."
+  },
+  {
+    "id": "r1",
+    "question": "how does customer support ticketing work and what happens to my data if I cancel my subscription",
+    "answer": "Regarding how customer support ticketing works: Ticketing software helps teams manage and respond to written customer support requests, such as emails.\n\nRegarding what happens to your data if you cancel your subscription: After cancellation, customer data is retained for 90 days in case you want to reactivate your account.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Both parts correct, ticket_003 correctly absent",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant correctly addressed both parts of the customer's question using only the provided context.",
+    "context": "Customer wants to cancel their subscription and asks what happens to their saved data. Resolution: Subscriptions can be cancelled anytime from Account Settings > Subscription > Cancel Plan, effective at the end of the current billing cycle (no partial refunds for the remaining days).\n\nResolution: Subscriptions can be cancelled anytime from Account Settings > Subscription > Cancel Plan, effective at the end of the current billing cycle (no partial refunds for the remaining days). After cancellation, customer data is retained for 90 days in case the customer wants to reactivate.\n\nTicketing software helps teams manage and respond to written customer support requests, like emails. As of 2019, emails were still one of the most common forms of business communication worldwide."
+  },
+  {
+    "id": "r2",
+    "question": "why is my order delayed, how do I get a refund for a defective item, and why was I charged the wrong amount",
+    "answer": "**Why is my order delayed?**  \nFor domestic orders that have been delayed more than 7 business days past the estimated delivery date, the first step is to check the carrier’s tracking link for updates. If the tracking shows no movement in the last 3 days, you should file a “lost in transit” claim with the carrier. At that point, you can offer the customer either a full reshipment at no cost or a full refund, depending on what they prefer.\n\n**How do I get a refund for a defective item?**  \nA defective item is eligible for a full refund regardless of when it was purchased, provided the customer:  \n1. Reports the defect within 90 days of delivery, and  \n2. Provides a photo of the damage.  \nOnce those conditions are met, the customer can receive a full refund.\n\n**Why was I charged the wrong amount?**  \nIncorrect‑amount charges (that are not duplicates) are not automatically reversed by the payment processor, so the customer will need to contact the payment processor or the merchant to resolve the discrepancy.",
+    "skipped_llm": false,
+    "human_verdict": "POOR",
+    "human_reason": "Wrong-charge part contradicts the documented escalate-to-billing process",
+    "judge_verdict": "POOR",
+    "judge_reason": "The assistant leaked internal agent-only instructions (e.g., 'you should file a “lost in transit” claim') and referred to the user in the third person ('the customer'), failing to maintain a professional, customer-facing tone.",
+    "context": "Subject: Refund request for a defective item Customer says the product arrived broken and wants a refund. Resolution: Defective items are eligible for a full refund regardless of purchase date, as long as the customer reports the defect within 90 days of delivery and provides a photo of the damage.\n\nResolution: For domestic orders delayed more than 7 business days past the estimated delivery date, agents should first check the carrier tracking link for updates. If tracking shows no movement in the last 3 days, file a \"lost in transit\" claim with the carrier and offer the customer either a full reshipment at no cost or a full refund, whichever they prefer.\n\nSubject: Customer was charged the wrong amount Customer says they were charged $49.99 instead of the advertised $29.99 price. Resolution: Incorrect-amount charges (not duplicates) are not auto-reversed by the payment processor."
+  },
+  {
+    "id": "r3",
+    "question": "what's the best pizza topping?",
+    "answer": "I couldn't find relevant information to answer \"what's the best pizza topping?\". Try asking something related to the topics covered in the documents.",
+    "skipped_llm": true,
+    "human_verdict": "GOOD",
+    "human_reason": "Correctly refused",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The assistant correctly identified that the provided context does not contain information about pizza toppings and provided an honest refusal.",
+    "context": "The Ultimate Guide to Customer Support\n\nA word on good leadership Effective management is absolutely essential for efficiency, regardless of support structure. Establishing on-the-ground awareness of successful strategies and pain points helps improve the entire company’s processes.\n\nTier 1 Tier 2 Consists of most agents who field all inbound chats, emails, and calls. They have general knowledge and respond quickly, solving simple inquiries through their product knowledge, call scripts, email templates, and links to company resources."
+  },
+  {
+    "id": "r4",
+    "question": "What is the recommended management ratio for customer support teams according to the guide?",
+    "answer": "I don't know based on the available documents.",
+    "skipped_llm": false,
+    "human_verdict": "GOOD",
+    "human_reason": "Correctly, honestly refused",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The provided context does not contain information regarding recommended management ratios for customer support teams, so the assistant correctly stated it did not know.",
+    "context": "The Ultimate Guide to Customer Support\n\nThis guide offers insights, best practice, and a strategic and tactical playbook on running customer support in the era of the modern consumer. 1\n\nFor example, customer support teams should know: 1. What new features are in the pipeline (product)? 2. How current features should be described (marketing)? 3. When customers should be offered a new product to solve a problem (sales)?"
+  },
+  {
+    "id": "r5",
+    "question": "how do I contact customer support",
+    "answer": "Customers can reach support through any of the following channels:\n\n- Email  \n- Live chat  \n- Phone  \n\nThey also have self‑serve options, such as a knowledge base and a chatbot, that can help resolve common issues without speaking to an agent.",
+    "skipped_llm": false,
+    "human_verdict": "POOR",
+    "human_reason": "Hallucinated a factual claim from what is actually a rhetorical checklist question in the source",
+    "judge_verdict": "GOOD",
+    "judge_reason": "The reply accurately lists the supported contact channels (email, live chat, phone) and self‑serve options (knowledge base, chatbot) as stated in the context, and it is clear, professional, and contains no unsupported claims.",
+    "context": "A customer has a problem Can customers easily contact customer support through whatever channel they prefer (email, chat, and/or phone)? Do customers have self-serve options, like a knowledge base or chatbot?\n\nIn it, customers can find answers on topics that would otherwise force them to contact your support team.” Automating customer support According to a 2017 survey, more than 60% of consumers prefer an automated service for simple customer service taks. As impatience and the demand for instant gratification con­ tinue to rise, demand for self-service does as well.\n\nHowever, there are still some cases. In these situations (such as customer-found bugs), a customer support agent notes the information and submits a ticket to the developer team to solve the problem."
+  }
+]
