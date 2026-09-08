@@ -162,7 +162,29 @@ def main():
     all_cases = EVAL_QUESTIONS + REGRESSION_CASES
     records = []
     for case in all_cases:
-        record = run_one_case(case, model, client, args.with_judge, args.with_ragas)
+        # A single case's LLM call failing (e.g. both Gemini and Groq
+        # rate-limited at once, which genuinely happened running this
+        # after a day of heavy eval traffic) must not crash the whole run
+        # and discard every result already collected -- record it as a
+        # failed case and keep going, same pattern classify_failures.py
+        # already uses for exactly this.
+        try:
+            record = run_one_case(case, model, client, args.with_judge, args.with_ragas)
+        except Exception as e:
+            print(f"[ERROR] {case['id']} ({case.get('problem_type', 'other')}): {case['question'][:60]}")
+            print(f"    {type(e).__name__}: {e}")
+            records.append({
+                "id": case["id"],
+                "question": case["question"],
+                "problem_type": case.get("problem_type", "other"),
+                "assertions": [],
+                "assertions_passed": False,
+                "answer": None,
+                "skipped_llm": None,
+                "error": f"{type(e).__name__}: {e}",
+            })
+            continue
+
         status = "PASS" if record["assertions_passed"] else "FAIL"
         print(f"[{status}] {case['id']} ({record['problem_type']}): {case['question'][:60]}")
         for a in record["assertions"]:
