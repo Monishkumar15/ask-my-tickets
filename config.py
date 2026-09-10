@@ -143,3 +143,18 @@ CORS_ALLOWED_ORIGINS = [
     for origin in os.getenv("CORS_ALLOWED_ORIGINS", "http://localhost:5173,http://127.0.0.1:5173").split(",")
     if origin.strip()
 ]
+
+# --- Agent loop (Week 7) ---
+# Stop conditions & budgets for agent.py's ReAct loop -- a loop where the
+# model picks its own next step can otherwise run forever or cost
+# unboundedly, so both a step count AND a wall-clock ceiling are enforced,
+# not just one.
+#
+# MAX_SECONDS was empirically calibrated, not guessed: a real 3-sub-topic
+# compound question measured ~9.1s/step in a warm process (embedding +
+# reranker models already loaded) plus one-time ~16s model-load overhead
+# on a cold process's first step. 5 steps cold-started measured ~52s in
+# the worst case actually observed -- 90s leaves real headroom above that,
+# rather than a number picked before ever measuring the real cost.
+AGENT_MAX_STEPS = int(os.getenv("AGENT_MAX_STEPS", "5"))
+AGENT_MAX_SECONDS = int(os.getenv("AGENT_MAX_SECONDS", "90"))
