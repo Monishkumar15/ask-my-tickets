@@ -151,7 +151,7 @@ function Sidebar({ page, setPage }) {
       <div className="sidebar-brand">
         <span className="eyebrow">Ask My Tickets</span>
         <h2>Knowledge hub</h2>
-        <span>Weeks 1&ndash;5</span>
+        <span>Weeks 1&ndash;9</span>
       </div>
       <nav className="sidebar-nav">
         {NAV_ITEMS.map(({ key, label, icon: Icon }) => (
@@ -163,7 +163,7 @@ function Sidebar({ page, setPage }) {
       </nav>
       <div className="sidebar-footer">
         <b>Current flow</b>
-        Ingest &rarr; retrieve &rarr; answer &rarr; analyse failures
+        Ingest &rarr; retrieve &rarr; answer &rarr; agent (MCP) &rarr; analyse failures
       </div>
     </aside>
   )
