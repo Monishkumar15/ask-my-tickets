@@ -31,13 +31,25 @@ def save(record):
 def get(trace_id):
     path = _path(trace_id)
     return json.loads(path.read_text(encoding="utf-8")) if path.exists() else None
-def list_recent(limit=50):
-    if not TRACE_DIR.exists(): return []
-    records=[]
-    for path in TRACE_DIR.glob("*.json"):
+def list_recent(limit=50, offset=0):
+    """
+    Paginated: sorts by file mtime (a fast proxy for created_at -- save()
+    writes atomically via a temp-file rename, so mtime tracks creation
+    order closely) instead of parsing every trace file's JSON just to sort
+    them. Only the requested page's files are actually opened and parsed.
+    Found live at 764+ accumulated trace files: the old version read and
+    JSON-decoded all of them on every single /traces call regardless of
+    limit, a cost that only grows as more traces pile up.
+    Returns (records, total_count).
+    """
+    if not TRACE_DIR.exists(): return [], 0
+    paths = sorted(TRACE_DIR.glob("*.json"), key=lambda p: p.stat().st_mtime, reverse=True)
+    total = len(paths)
+    records = []
+    for path in paths[offset:offset + limit]:
         try: records.append(json.loads(path.read_text(encoding="utf-8")))
         except (OSError, json.JSONDecodeError): pass
-    return sorted(records, key=lambda item: item.get("created_at", ""), reverse=True)[:limit]
+    return records, total
 def annotate(trace_id, values):
     record=get(trace_id)
     if record is None: return None

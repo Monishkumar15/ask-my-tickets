@@ -227,9 +227,11 @@ def documents():
         raise HTTPException(status_code=502, detail=str(exc)) from exc
 
 @app.get("/traces")
-def traces(limit: int = 50):
+def traces(limit: int = 50, offset: int = 0):
     if not 1 <= limit <= 200: raise HTTPException(status_code=422, detail="limit must be between 1 and 200")
-    return list_recent(limit)
+    if offset < 0: raise HTTPException(status_code=422, detail="offset must be >= 0")
+    records, total = list_recent(limit, offset)
+    return {"traces": records, "total": total, "limit": limit, "offset": offset}
 
 @app.get("/traces/{trace_id}")
 def trace_detail(trace_id: str):

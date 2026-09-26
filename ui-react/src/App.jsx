@@ -681,17 +681,25 @@ const PROBLEM_TYPES = [
   { value: 'other', label: 'Other' },
 ]
 
+const TRACES_PER_PAGE = 50
+
 function Traces({ notifyError }) {
   const [traces, setTraces] = useState([])
+  const [total, setTotal] = useState(0)
+  const [page, setPage] = useState(0) // 0-indexed
   const [selected, setSelected] = useState(null)
   const [filter, setFilter] = useState('all')
   const [unreviewedOnly, setUnreviewedOnly] = useState(false)
   const [loading, setLoading] = useState(false)
 
-  const load = async () => {
+  const load = async (pageToLoad = page) => {
     setLoading(true)
     try {
-      setTraces(await api.get('/traces?limit=50'))
+      const offset = pageToLoad * TRACES_PER_PAGE
+      const data = await api.get(`/traces?limit=${TRACES_PER_PAGE}&offset=${offset}`)
+      setTraces(data.traces)
+      setTotal(data.total)
+      setPage(pageToLoad)
     } catch (e) {
       notifyError(e.message)
     } finally {
@@ -699,7 +707,9 @@ function Traces({ notifyError }) {
     }
   }
 
-  useEffect(() => { load() }, [])
+  useEffect(() => { load(0) }, [])
+
+  const pageCount = Math.max(1, Math.ceil(total / TRACES_PER_PAGE))
 
   const open = async (traceId) => {
     try {
@@ -732,7 +742,7 @@ function Traces({ notifyError }) {
           <h2>Trace review</h2>
           <p>Open a trace, read the evidence, then label what kind of failure (if any) it was.</p>
         </div>
-        <button className="btn secondary small" onClick={load}><IconRefresh /> Refresh</button>
+        <button className="btn secondary small" onClick={() => load(page)}><IconRefresh /> Refresh</button>
       </div>
 
       <div className="trace-toolbar">
@@ -748,24 +758,50 @@ function Traces({ notifyError }) {
       </div>
 
       <div className="trace-layout">
-        <div className="trace-list">
-          {loading && <p className="empty-state">Loading traces...</p>}
-          {!loading && visible.length === 0 && <p className="empty-state">No traces match this filter.</p>}
-          {visible.map((t) => (
+        <div className="trace-list-col">
+          <div className="trace-list">
+            {loading && <p className="empty-state">Loading traces...</p>}
+            {!loading && visible.length === 0 && <p className="empty-state">No traces match this filter.</p>}
+            {visible.map((t) => (
+              <button
+                key={t.trace_id}
+                className={`trace-row${selected?.trace_id === t.trace_id ? ' selected' : ''}`}
+                onClick={() => open(t.trace_id)}
+              >
+                <div className="trace-row-top">
+                  <b>{t.question}</b>
+                </div>
+                <div className="trace-row-meta">
+                  <OutcomeBadge outcome={t.outcome} />
+                  {t.annotation?.reviewed && <span className="reviewed-dot" title="Reviewed" />}
+                </div>
+              </button>
+            ))}
+          </div>
+
+          {/* Server-side pagination -- 764+ trace files accumulate over a
+              session's testing, and fetching/parsing all of them at once
+              on every load doesn't scale. Each page is its own fetch
+              (see load()), not a client-side slice of one big list. */}
+          <div className="trace-pagination">
             <button
-              key={t.trace_id}
-              className={`trace-row${selected?.trace_id === t.trace_id ? ' selected' : ''}`}
-              onClick={() => open(t.trace_id)}
+              className="btn secondary small"
+              onClick={() => load(page - 1)}
+              disabled={loading || page <= 0}
             >
-              <div className="trace-row-top">
-                <b>{t.question}</b>
-              </div>
-              <div className="trace-row-meta">
-                <OutcomeBadge outcome={t.outcome} />
-                {t.annotation?.reviewed && <span className="reviewed-dot" title="Reviewed" />}
-              </div>
+              &larr; Newer
             </button>
-          ))}
+            <span className="trace-page-label">
+              Page {page + 1} of {pageCount} &middot; {total} trace{total === 1 ? '' : 's'} total
+            </span>
+            <button
+              className="btn secondary small"
+              onClick={() => load(page + 1)}
+              disabled={loading || page + 1 >= pageCount}
+            >
+              Older &rarr;
+            </button>
+          </div>
         </div>
 
         {selected && (
