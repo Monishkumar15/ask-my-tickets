@@ -29,7 +29,15 @@
 * { box-sizing: border-box; }
 body { margin: 0; background: var(--bg); }
 h1, h2, h3, p { margin: 0; }
-button { font: inherit; cursor: pointer; }
+/* font/cursor were already reset, but NOT color -- browsers don't
+   inherit color into form controls (button/input/select/textarea) by
+   default, they use the OS's own default control-text color instead
+   (usually near-black), regardless of what :root/body declare. That's
+   why unstyled buttons (e.g. .trace-row, .step-btn, which set no color
+   of their own) rendered illegibly dark text in dark mode even though
+   every other element on the page correctly showed the light --text
+   color. */
+button { font: inherit; cursor: pointer; color: inherit; }
 textarea, input, select { font: inherit; color: inherit; }
 
 /* ---------- shell ---------- */
@@ -94,7 +102,15 @@ textarea, input, select { font: inherit; color: inherit; }
 .health-chip.ok .health-dot { background: var(--good); }
 .health-chip.degraded .health-dot { background: var(--bad); }
 
-.page { max-width: 1100px; padding: 1.75rem 2.5rem 4rem; display: grid; gap: 1.25rem; }
+/* A fixed max-width (1100px, then 1500px) still left a gap on wide
+   screens -- the dashboard/documents/retrieve grids are all auto-fill or
+   fixed-column grids that reflow productively with more width (more doc
+   cards per row, wider stat/workflow cards), so there's no readability
+   reason to cap this page the way a text-only column would need. Matches
+   .page-full's own max-width: none now, just without its fixed-height
+   flex layout (this page still scrolls normally with the rest of the
+   document, it just isn't width-capped anymore). */
+.page { max-width: none; padding: 1.75rem 2.5rem 4rem; display: grid; gap: 1.25rem; }
 /* Ask page needs the full remaining height for its chat panel, not the
    scrolling max-width column the other pages use. */
 .page.page-full { max-width: none; height: calc(100vh - var(--topbar-h) - 5.9rem); padding: 1.25rem 2.5rem 1.5rem; display: flex; min-height: 0; }
