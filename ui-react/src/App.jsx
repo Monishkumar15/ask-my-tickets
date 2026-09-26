@@ -773,6 +773,9 @@ function Traces({ notifyError }) {
                 </div>
                 <div className="trace-row-meta">
                   <OutcomeBadge outcome={t.outcome} />
+                  {t.config?.mode === 'agent' && (
+                    <span className="pill trace-mcp-pill" title="Agent trace -- tools called over MCP">MCP</span>
+                  )}
                   {t.annotation?.reviewed && <span className="reviewed-dot" title="Reviewed" />}
                 </div>
               </button>

@@ -181,6 +181,10 @@ textarea, input, select { font: inherit; color: inherit; }
 .answer-sources { margin-top: 0.85rem; display: flex; gap: 0.4rem; flex-wrap: wrap; align-items: center; }
 .answer-sources span.label { color: var(--text-faint); font-size: 0.8rem; }
 .pill { background: var(--panel-3); border: 1px solid var(--border); border-radius: 999px; padding: 0.2rem 0.65rem; font-size: 0.78rem; font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; color: var(--text-dim); }
+/* Marks an agent trace in the trace LIST itself (not just after opening
+   it) -- accent-tinted and smaller than a normal .pill so it reads as a
+   quick tag alongside the outcome badge, not competing with it. */
+.trace-mcp-pill { background: var(--accent-soft); border-color: var(--accent-dim); color: var(--accent); font-size: 0.68rem; padding: 0.1rem 0.45rem; }
 .trace-ref { margin-top: 0.6rem; color: var(--text-faint); font-size: 0.78rem; font-family: ui-monospace, "SFMono-Regular", Consolas, monospace; }
 
 /* ---------- provider toggle (Gemini / Groq) ---------- */
