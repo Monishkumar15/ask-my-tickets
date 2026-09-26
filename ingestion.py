@@ -361,6 +361,23 @@ def all_chunks(client, collection_name=COLLECTION_NAME):
     return [{"id": point.id, **point.payload} for point in records]
 
 
+def grouped_sources(client, collection_name=COLLECTION_NAME):
+    """
+    One summary row per distinct source document: filename, chunk count, and
+    a short text preview. Shared by api.py's GET /documents route and
+    mcp_server.py's list_ticket_sources MCP tool (Week 9) -- same grouping,
+    one implementation.
+    """
+    chunks = all_chunks(client, collection_name=collection_name)
+    grouped = {}
+    for chunk in chunks:
+        grouped.setdefault(chunk["source"], []).append(chunk)
+    return [
+        {"filename": source, "chunk_count": len(items), "preview": items[0]["text"][:240]}
+        for source, items in sorted(grouped.items())
+    ]
+
+
 # ===========================================================================
 # 5. Orchestration -- chunk -> embed -> store, in one call
 # ===========================================================================

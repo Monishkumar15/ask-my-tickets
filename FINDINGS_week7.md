@@ -167,6 +167,20 @@ Documented honestly as a known reliability gap, consistent with this
 project's practice all session of recording a real limit rather than
 quietly working around it.
 
+**Update (Week 9)**: partially resolved without the full function-calling
+rewrite described above. `generate.py`'s `call_llm()` now recognizes this
+exact failure (`{"error": {"code": "tool_use_failed"}}`) as a
+known-recoverable error, the same way it already treated a 429 -- it falls
+back to the other provider automatically instead of raising. Reconfirmed
+live against the real API that the underlying model behavior is unchanged
+(still non-deterministic: the identical prompt succeeded once and failed
+three times across four back-to-back calls with the exact same error
+body), but the agent no longer crashes when it happens -- it transparently
+retries on Gemini. The single-provider dependency this section describes
+is gone; the underlying Groq-serving quirk itself is not, and still isn't
+worth an OpenAI-function-calling rewrite just to eliminate one now-harmless
+retry.
+
 ## Phase 7 — Memory (kept deliberately light, per plan)
 
 - **Short-term memory**: already exists from an earlier week --

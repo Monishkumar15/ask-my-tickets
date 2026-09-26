@@ -88,12 +88,39 @@ def _call_provider(provider_name, prompt, temperature=DEFAULT_TEMPERATURE):
     return data["choices"][0]["message"]["content"]
 
 
+def _is_tool_use_failed(response):
+    """
+    Some Groq models (e.g. openai/gpt-oss-20b) have native function-calling
+    behavior baked into how they're served, and can auto-detect a ReAct-style
+    prompt's "Available actions: <tool>(...)" phrasing as an implicit
+    tool-call request -- then reject their OWN attempt: a 400 with
+    {"error": {"code": "tool_use_failed", "message": "Tool choice is none,
+    but model called a tool"}}. Confirmed live (Week 7, reconfirmed Week 9):
+    non-deterministic -- the identical prompt can succeed or fail across
+    calls, so this is a model-serving quirk, not a prompt bug to fix once.
+    Never triggers on the fixed pipeline's plain-language prompts (no
+    tool/action vocabulary in them) -- only agent.py's tool-listing prompt
+    can hit this, on whichever model happens to be configured.
+    """
+    if response is None or response.status_code != 400:
+        return False
+    try:
+        return response.json().get("error", {}).get("code") == "tool_use_failed"
+    except ValueError:
+        return False
+
+
 def call_llm(prompt, preferred_provider=DEFAULT_LLM_PROVIDER, temperature=DEFAULT_TEMPERATURE):
     """
-    Try preferred_provider first. If it fails specifically because of a
-    429 (quota/rate-limit), automatically retry with the other provider.
-    Any other kind of error (bad request, network issue, etc.) surfaces
-    immediately instead of silently retrying elsewhere.
+    Try preferred_provider first. Falls back to the other provider only for
+    known-recoverable failures: a 429 (quota/rate-limit), or a model
+    serving-side tool-call misfire (_is_tool_use_failed) -- both are
+    properties of the specific model/provider handling this one request,
+    not the request itself, so the other provider is expected to succeed
+    where this one didn't. Any other kind of error (bad request, network
+    issue, etc.) surfaces immediately instead of silently retrying
+    elsewhere -- this project treats "retry automatically" as something
+    each failure mode has to individually earn, not a default.
 
     Returns (answer_text, provider_that_actually_answered).
     """
@@ -103,7 +130,7 @@ def call_llm(prompt, preferred_provider=DEFAULT_LLM_PROVIDER, temperature=DEFAUL
         return _call_provider(preferred_provider, prompt, temperature), preferred_provider
     except requests.exceptions.HTTPError as e:
         is_quota_error = e.response is not None and e.response.status_code == 429
-        if not is_quota_error:
+        if not (is_quota_error or _is_tool_use_failed(e.response)):
             raise
         return _call_provider(other_provider, prompt, temperature), other_provider
 

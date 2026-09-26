@@ -18,7 +18,7 @@ from pydantic import BaseModel, Field
 
 from config import CORS_ALLOWED_ORIGINS, DATA_DIR, DEFAULT_LLM_PROVIDER, DEFAULT_TEMPERATURE, GEMINI_API_KEY, GROQ_API_KEY
 from generate import answer_question
-from ingestion import LOADERS, all_chunks, build_database, get_client, get_embedding_model
+from ingestion import LOADERS, build_database, get_client, get_embedding_model, grouped_sources
 from ingestion import count as count_chunks
 from retrieval import retrieve
 from sessions import add_message, create_session, delete_session, get_session, list_sessions
@@ -222,13 +222,9 @@ def inspect_retrieval(request: RetrieveRequest):
 @app.get("/documents")
 def documents():
     try:
-        chunks = all_chunks(get_client())
+        return grouped_sources(get_client())
     except Exception as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
-    grouped = {}
-    for chunk in chunks:
-        grouped.setdefault(chunk["source"], []).append(chunk)
-    return [{"filename": source, "chunk_count": len(items), "preview": items[0]["text"][:240]} for source, items in sorted(grouped.items())]
 
 @app.get("/traces")
 def traces(limit: int = 50):

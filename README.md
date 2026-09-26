@@ -184,9 +184,12 @@ RERANK_CANDIDATE_POOL=10
 Gemini key at [aistudio.google.com/api-keys](https://aistudio.google.com/api-keys)
 and a free Groq key at [console.groq.com/keys](https://console.groq.com/keys).
 Gemini is tried first by default; Groq is the automatic fallback if Gemini
-returns a 429 (quota/rate-limit) — no other kind of error triggers a
-silent retry on the other provider. Every other value above is already a
-safe, working default; `.env` itself stays out of git (see `.gitignore`).
+returns a 429 (quota/rate-limit) or a known model-serving quirk (Week 9:
+some Groq models misfire on the agent's tool-listing prompt -- see the
+Week 9 section below) — any other kind of error surfaces immediately
+instead of triggering a silent retry on the other provider. Every other
+value above is already a safe, working default; `.env` itself stays out of
+git (see `.gitignore`).
 
 `QUERY_INSTRUCTION` stays empty for MiniLM (it doesn't need an asymmetric
 query prefix). It exists as a setting for future BGE-family models, which
@@ -366,6 +369,126 @@ python evals/validate_trajectory_judge.py
 Confirms the judge agrees with a human grader at or above the 80% threshold
 before its verdicts are used anywhere.
 
+### Week 9 -- MCP (Model Context Protocol)
+
+`agent.py` no longer imports `retrieval.retrieve` directly. It discovers
+its tools at the start of every run from a separate MCP server
+(`mcp_server.py`) and calls them over the standard protocol instead of a
+hard-coded function call -- so the tool becomes callable by any MCP
+client, not just this repo's agent. See
+[`FINDINGS_week9.md`](FINDINGS_week9.md) for the full write-up.
+
+#### 1. Start the MCP server (in addition to Qdrant, before the backend/UI)
+
+```bash
+docker start qdrant-ask-my-tickets   # same as every other week
+.\venv\Scripts\Activate
+python mcp_server.py                 # streamable-http, the default -- a long-lived
+                                      # process, same operational shape as Qdrant
+```
+Requires `MCP_SHARED_SECRET` set in `.env` (the HTTP transport refuses to
+start without one -- generate your own: `python -c "import secrets; print(secrets.token_urlsafe(24))"`).
+Leave this running in its own terminal, then start the backend/UI as usual
+(`uvicorn api:app --reload`, `cd ui-react && npm run dev`).
+
+#### 2. See a tool call go through MCP
+
+```bash
+.\venv\Scripts\Activate
+python agent.py
+Ask a (possibly multi-part) question: why did my account get locked when I typed my password wrong a few times?
+```
+Check the newest file in `traces/` -- its `agent_step` stage for
+`search_tickets` now carries `"via": "mcp"`.
+
+#### 3. Prove the two mentor-checklist items that need a second party
+
+```bash
+python evals/mcp_server_test.py       # discovery + both tools + auth rejection, against the live server
+python evals/foreign_agent_demo.py    # a client with ZERO imports from this repo -- discovers
+                                       # and calls the server the same way a stranger's agent would
+```
+
+#### 4. Look at the raw JSON-RPC once (the one-time "stop being a mystery" exercise)
+
+```bash
+python mcp_server.py --transport stdio
+```
+Or inspect it directly with `curl` against the running HTTP server. **On
+Windows PowerShell, use `curl.exe` explicitly** -- plain `curl` is aliased to
+`Invoke-WebRequest`, which doesn't understand `-X`/`-d`/`-H` the same way.
+
+The streamable-http transport is session-based: `initialize` is always the
+first call, its response carries an `mcp-session-id` header you must reuse
+on every following request (a bare `tools/list` with no session id fails
+with `"Missing session ID"` -- confirmed live, not a guess). A real MCP
+client (`ClientSession`, or anything in `evals/`) handles this
+automatically; doing it by hand with curl needs all three calls in order:
+
+```bash
+# 1. initialize -- copy the mcp-session-id header from the response
+curl.exe -s -i -X POST http://127.0.0.1:8830/mcp `
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" `
+  -H "X-MCP-Shared-Secret: <your secret>" `
+  -d '{"jsonrpc":"2.0","id":1,"method":"initialize","params":{"protocolVersion":"2025-06-18","capabilities":{},"clientInfo":{"name":"manual-test","version":"1.0"}}}'
+
+# 2. required handshake-completion notification (same session id)
+curl.exe -s -X POST http://127.0.0.1:8830/mcp `
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" `
+  -H "X-MCP-Shared-Secret: <your secret>" -H "Mcp-Session-Id: <session id from step 1>" `
+  -d '{"jsonrpc":"2.0","method":"notifications/initialized"}'
+
+# 3. now tools/list (or tools/call) works
+curl.exe -s -X POST http://127.0.0.1:8830/mcp `
+  -H "Content-Type: application/json" -H "Accept: application/json, text/event-stream" `
+  -H "X-MCP-Shared-Secret: <your secret>" -H "Mcp-Session-Id: <same session id>" `
+  -d '{"jsonrpc":"2.0","id":2,"method":"tools/list"}'
+```
+A `tools/call` payload looks like:
+```json
+{"jsonrpc":"2.0","id":3,"method":"tools/call","params":{"name":"search_tickets","arguments":{"query":"password lockout","top_k":2}}}
+```
+
+#### 5. Full verification checklist (what to actually run, in order)
+
+```bash
+python evals/mcp_server_test.py       # 1. server discoverable, callable, auth enforced
+python evals/foreign_agent_demo.py "http://127.0.0.1:8830/mcp" "<your MCP_SHARED_SECRET>"
+                                       # 2. a zero-imports client can use it
+python agent.py                       # 3. real question -- check traces/*.json for "via": "mcp"
+                                       # 4. open it in the UI's "Error analysis" page too
+python evals/trajectory_eval.py       # 5. regression -- MCP migration didn't change agent correctness
+python evals/prompt_injection_test.py # 6. Week 8's defenses still hold through the MCP path
+```
+Expect all 6 injection variants to print `blocked`, and `trajectory_eval.py`'s
+outcome/trajectory scores to be consistent with Week 8's `week8_final`
+snapshot (occasional individual-case failures with a plain `HTTPError: 429`
+or Groq `400` are provider quota/quirks, not MCP bugs -- see
+`FINDINGS_week9.md` sections 10-11; a generic `ExceptionGroup` instead of a
+normal exception type would be the real red flag).
+
+**Troubleshooting -- "port already in use" on `python mcp_server.py`:**
+a previous `mcp_server.py` process (e.g. from an earlier test run you forgot
+was still running) is usually the cause, not a real conflict with another
+app. Find and stop it:
+```powershell
+Get-CimInstance Win32_Process -Filter "Name='python.exe'" |
+  Where-Object { $_.CommandLine -like '*mcp_server.py*' } |
+  Select-Object ProcessId, CommandLine
+Stop-Process -Id <the PID(s) above> -Force
+```
+
+**Provider robustness**: `generate.py`'s `call_llm()` automatically falls
+back to the other provider (Gemini <-> Groq) not just on a 429
+(quota/rate-limit), but also on a Groq-specific `tool_use_failed` 400 --
+some Groq models (e.g. `openai/gpt-oss-20b`) auto-detect the agent's
+tool-listing prompt as a native tool-call request and then reject their own
+attempt. Confirmed live: the identical prompt can succeed or fail across
+calls on the same model, so this is model-serving-side non-determinism,
+not a prompt bug -- the fallback makes any model choice on either provider
+safe to use, instead of requiring one specific "known-good" model pinned
+in `.env`. See `FINDINGS_week7.md`'s "Update (Week 9)" note.
+
 ## Project structure
 
 ```
@@ -378,7 +501,9 @@ ask-my-tickets/
 ├── tracing.py                   # local JSON trace files (traces/) -- no external service
 ├── app.py                        # interactive CLI entry point
 ├── api.py                         # HTTP API: /ask, /retrieve, /upload, /health, /documents, /traces
-├── agent.py                          # Week 7: hand-built ReAct agent loop (search/finish/escalate)
+├── agent.py                          # Week 7: hand-built ReAct agent loop -- Week 9: tools via MCP
+├── mcp_server.py                       # Week 9: MCP server (search_tickets, list_ticket_sources)
+├── mcp_client.py                        # Week 9: MCP client session wrapper used by agent.py
 ├── evals/                          # diagnostic/comparison scripts (not part of the runtime pipeline)
 │   ├── eval_questions.py             # labeled eval set (question + expected source/keywords)
 │   ├── compare_chunk_sizes.py          # chunk size experiment (Step 9)
@@ -388,13 +513,16 @@ ask-my-tickets/
 │   ├── trajectory_checks.py                  # Week 8: rule-based agent-path checks
 │   ├── trajectory_judge.py                   # Week 8: LLM-as-judge for trajectory reasoning
 │   ├── trajectory_eval.py                    # Week 8: one-command outcome + trajectory runner
-│   └── prompt_injection_test.py              # Week 8: isolated prompt-injection red-team test
+│   ├── prompt_injection_test.py              # Week 8/9: isolated prompt-injection red-team test
+│   ├── mcp_server_test.py                    # Week 9: MCP discovery/tool-call/auth smoke test
+│   └── foreign_agent_demo.py                 # Week 9: zero-imports "someone else's agent" proof
 ├── ui-react/                        # React/Vite frontend (upload, ask, retrieve, trace review)
 ├── FINDINGS.md              # Week 3 chunk-size results, bugs caught, limitations
 ├── FINDINGS_week4.md          # Week 4 hybrid-search diagnosis and results
 ├── FINDINGS_week6.md           # Week 6 evals/regression/judge validation write-up
 ├── FINDINGS_week7.md            # Week 7 agent loop write-up
 ├── FINDINGS_week8.md             # Week 8 trajectory eval + prompt injection write-up
+├── FINDINGS_week9.md              # Week 9 MCP integration write-up
 ├── WEEK5_ERROR_ANALYSIS.md     # Week 5 trace review write-up
 ├── requirements.txt
 └── .env                          # all config incl. GEMINI_API_KEY, GROQ_API_KEY (not committed)

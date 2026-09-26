@@ -158,3 +158,23 @@ CORS_ALLOWED_ORIGINS = [
 # rather than a number picked before ever measuring the real cost.
 AGENT_MAX_STEPS = int(os.getenv("AGENT_MAX_STEPS", "5"))
 AGENT_MAX_SECONDS = int(os.getenv("AGENT_MAX_SECONDS", "90"))
+
+# --- MCP server (Week 9) ---
+# "http" is the default for real use (agent.py, evals/): mcp_server.py runs
+# as its own long-lived process, same operational shape as Qdrant, so the
+# embedding model / BM25 index it loads stay warm across calls instead of
+# reloading per call. "stdio" is kept as an alternate transport -- launched
+# as a local subprocess -- for inspecting the raw JSON-RPC handshake once
+# and for the simplest possible zero-infrastructure discovery demo.
+MCP_TRANSPORT = os.getenv("MCP_TRANSPORT", "http")
+MCP_SERVER_HOST = os.getenv("MCP_SERVER_HOST", "127.0.0.1")
+MCP_SERVER_PORT = int(os.getenv("MCP_SERVER_PORT", "8830"))
+MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", f"http://{MCP_SERVER_HOST}:{MCP_SERVER_PORT}/mcp")
+
+# Checked on every HTTP tool call (mcp_server.py's auth middleware) so an
+# arbitrary caller can't invoke a tool with no check at all -- the brief's
+# own "keeping it safe: access control" topic. Not present/enforced on the
+# stdio transport: stdio has no network exposure to begin with (the caller
+# already had to be able to launch a local subprocess), so there is no
+# remote party to gate out there.
+MCP_SHARED_SECRET = os.getenv("MCP_SHARED_SECRET", "")
