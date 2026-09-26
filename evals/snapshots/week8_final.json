@@ -1,0 +1,800 @@
+{
+  "saved_at": "2026-09-26T11:58:15.675143+00:00",
+  "records": [
+    {
+      "id": "q1",
+      "question": "why did my account get locked when I typed my password wrong a few times?",
+      "problem_type": "other",
+      "seconds": 13.452114399988204,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "Your account was locked for security reasons. According to our policy, after 3 failed login attempts, the account will lock for 15 minutes. Please wait 15 minutes and try using the 'Forgot Password' link again, at which point it should work normally.",
+      "trace_id": "b1f99e375464421997c7cac946f9b3bb",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_001_password_lockout.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['15 minutes']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the policy and provided a complete, evidence-based explanation for the customer's account lockout."
+    },
+    {
+      "id": "q2",
+      "question": "my order still hasn't shown up, it's way past when it should have",
+      "problem_type": "other",
+      "seconds": 5.351620699977502,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "I am sorry to hear your order is delayed. According to our policy for domestic orders delayed more than 7 business days, we first need to check the carrier tracking link for updates. If the tracking shows no movement in the last 3 days, we can file a 'lost in transit' claim for you and provide a full reshipment at no cost or a full refund, depending on your preference. Please check your tracking link for the latest update, and let us know if there has been no movement in the last 3 days so we can proceed with the claim.",
+      "trace_id": "8df5d2eaf8874a96806decae4643d6e3",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_003_shipping_delay.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['7 business days']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the policy and provided a logical path forward for the customer given the lack of specific order details in the prompt."
+    },
+    {
+      "id": "q3",
+      "question": "3 attempts and now I'm locked out, is that normal?",
+      "problem_type": "other",
+      "seconds": 13.259571699949447,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "Yes, that is normal. According to our policy, your account automatically locks for 15 minutes after 3 failed login attempts for security purposes. During this 15-minute window, the system will not send a password reset email. Please wait 15 minutes and then try using the \"Forgot Password\" link again. If you are still unable to log in after waiting, please let us know so we can escalate this to our Tier 2 team for a manual unlock.",
+      "trace_id": "df194fb590ae446db9f63c681ef2b994",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_001_password_lockout.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['15 minutes']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the policy, accurately interpreted the search results, and provided a complete answer based on the evidence gathered."
+    },
+    {
+      "id": "q4",
+      "question": "I want to go to Account Settings, Subscription, then Cancel Plan -- what happens after that?",
+      "problem_type": "other",
+      "seconds": 5.242140899994411,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "After you select 'Cancel Plan' in your Account Settings, your subscription will remain active until the end of your current billing cycle. Please note that there are no partial refunds for any remaining days. Once the cancellation is effective, your account data will be retained for 90 days, giving you the opportunity to reactivate your subscription if you choose. After those 90 days, your data will be permanently deleted.",
+      "trace_id": "0f71bcbf6d47430390ffa1cca2318e27",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_004_account_cancellation.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['90 days']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the steps to cancel, gathered the relevant information from the search results, and accurately synthesized the consequences of the cancellation as requested by the customer."
+    },
+    {
+      "id": "q5",
+      "question": "there are two $29.99 charges on my statement from the same day",
+      "problem_type": "other",
+      "seconds": 7.190596500004176,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "Duplicate charges of $29.99 on the same day are often caused by a payment retry following a temporarily declined card. These charges are almost always automatically reversed by the payment processor within 5-7 business days.",
+      "trace_id": "140e5e69c55f43459bc90580716e5199",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_005_billing_dispute.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['reversed']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "terminal_action",
+          "passed": true,
+          "reason": "correctly used 'finish'"
+        },
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the cause and resolution for the duplicate charges based on the provided documentation and reached a justified conclusion."
+    },
+    {
+      "id": "q6",
+      "question": "it's been 45 days since I bought it, can I still get money back?",
+      "problem_type": "other",
+      "seconds": 6.784030199982226,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "According to our policy, for purchases made 45 days ago, you are eligible for a 50% partial refund, provided your account shows minimal usage. If the item you purchased is defective, you may be eligible for a full refund instead, provided you report the defect within 90 days of delivery and provide a photo of the damage.",
+      "trace_id": "985aad07d63f4e8385c332ec6aee5b92",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_002_refund_window.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['50%']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the relevant policy details from the search results and accurately synthesized them into a comprehensive answer that addresses the customer's specific situation."
+    },
+    {
+      "id": "q7",
+      "question": "carrier says lost in transit, what do we do for the customer?",
+      "problem_type": "other",
+      "seconds": 5.259018199983984,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "If the carrier confirms the package was lost in transit, you should file a 'lost in transit' claim with the carrier and offer the customer their choice between a full reshipment at no cost or a full refund.",
+      "trace_id": "ec777f522cfd4db1aec56145b7db8f6e",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_003_shipping_delay.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['reshipment']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the relevant policy in the search results and accurately summarized the required actions (filing a claim and offering reshipment or refund) without misreading the evidence or ignoring relevant details."
+    },
+    {
+      "id": "q11",
+      "question": "the item I got was damaged, will you refund me",
+      "problem_type": "other",
+      "seconds": 4.716199499962386,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "Yes, if your item arrived damaged, it is eligible for a full refund. You just need to report the damage within 90 days of delivery and provide a photo of the damage.",
+      "trace_id": "58f3ed76319149d08721fa0d117f3198",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_006_defective_item_refund.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['90 days']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the specific policy for damaged items from the search results, accurately reflected the conditions (90 days, photo) in its reasoning, and provided a final answer fully supported by the evidence."
+    },
+    {
+      "id": "q12",
+      "question": "you guys charged me the wrong price",
+      "problem_type": "other",
+      "seconds": 5.179031600011513,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "escalated",
+      "escalated": true,
+      "answer": "The customer was charged an incorrect price. According to our internal documentation, incorrect-amount charges must be escalated directly to the billing team for manual adjustment. Please provide a screenshot of the advertised price and the actual charge so that the billing team can process this within 2 business days.",
+      "trace_id": "f7634183dfae457faddd9e91240cadec",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_007_incorrect_charge_amount.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['2 business days']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "terminal_action",
+          "passed": true,
+          "reason": "correctly used 'escalate'"
+        },
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the billing discrepancy, retrieved the relevant policy from the search results, and followed the documented procedure to escalate the issue."
+    },
+    {
+      "id": "q8",
+      "question": "exactly how many days after cancelling is my data deleted?",
+      "problem_type": "other",
+      "seconds": 5.256133899965789,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "After you cancel your subscription, your data is retained for 90 days to allow for potential reactivation. Following this 90-day period, all data is permanently deleted and cannot be recovered.",
+      "trace_id": "202a24d958554b07a920bce50e26f0f2",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_004_account_cancellation.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['90']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the relevant policy in the search results and accurately synthesized the information to answer the customer's specific question."
+    },
+    {
+      "id": "q9",
+      "question": "what percentage refund do I get if I ask between 31 and 60 days after buying?",
+      "problem_type": "other",
+      "seconds": 4.111495300021488,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "If you request a refund between 31 and 60 days after purchase, you are eligible for a 50% partial refund. Please note that this is at the agent's discretion and is provided only if the account shows minimal usage.",
+      "trace_id": "a3b5419d9ea2468e8509d54aafe1dea8",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_002_refund_window.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['50%']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the relevant policy and accurately summarized the conditions and percentage found in the search results."
+    },
+    {
+      "id": "q10",
+      "question": "how many business days do you wait before filing a lost-in-transit claim?",
+      "problem_type": "other",
+      "seconds": 3.771574500016868,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "For domestic orders, you should wait until the shipment is more than 7 business days past the estimated delivery date. Additionally, you must verify that the tracking information has shown no movement for at least 3 days before filing a 'lost-in-transit' claim.",
+      "trace_id": "b42bf87f93c74d52a3959f6f6339acd8",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_003_shipping_delay.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['3 days']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified and synthesized the two conditions (7 business days past delivery date and 3 days of no movement) provided in the search results."
+    },
+    {
+      "id": "q13",
+      "question": "90 days delete data",
+      "problem_type": "other",
+      "seconds": 4.540872399986256,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "After your account cancellation, your data is retained for 90 days, which provides a window for you to reactivate your account if you choose. Once this 90-day period has passed, all customer data is permanently deleted and cannot be recovered.",
+      "trace_id": "d205d05933604c0c8f233c4d83ac88b8",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_004_account_cancellation.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['90']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the relevant policy from the search results and provided an accurate answer based on the evidence."
+    },
+    {
+      "id": "q14",
+      "question": "29.99 x2 reversed",
+      "problem_type": "other",
+      "seconds": 5.052522599988151,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "The two charges of $29.99 that were reversed were likely caused by a payment retry after a temporarily declined card. Duplicate charges on the same day for the same amount are almost always automatically reversed by the payment processor within 5-7 business days. Please check your bank statement to confirm that one charge appears as 'settled' and the other shows as 'pending' or 'reversed'.",
+      "trace_id": "d8fae982d6ec4b9db27ca9d882672800",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_005_billing_dispute.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['reversed']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the customer's issue as a duplicate charge reversal, searched for relevant policies, found a matching ticket explaining the automatic reversal process for duplicate charges, and provided an answer fully supported by that evidence."
+    },
+    {
+      "id": "q15",
+      "question": "3 attempts locked 15 min",
+      "problem_type": "other",
+      "seconds": 4.825891899992712,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "After 3 failed login attempts, your account will be locked for 15 minutes for security reasons. During this lockout window, password reset emails are not sent by design. Please wait for the 15 minutes to elapse, and then the 'Forgot Password' link will work normally.",
+      "trace_id": "221e3ceab9484df19ac602eccb070926",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'ticket_001_password_lockout.txt' present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['15 minutes']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified the customer's query regarding the lockout policy, searched for relevant tickets, accurately interpreted the observation confirming the 3-attempt/15-minute rule and the behavior of reset emails during that window, and provided a final answer fully supported by the evidence."
+    },
+    {
+      "id": "r1",
+      "question": "how does customer support ticketing work and what happens to my data if I cancel my subscription",
+      "problem_type": "retrieval_failure",
+      "seconds": 7.708658499992453,
+      "llm_calls": 3,
+      "steps_taken": 3,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "Our ticketing software allows our support team to manage and respond to written requests. In specific situations, such as when a customer reports a bug, an agent will submit a ticket to the developer team for resolution. \n\nRegarding your subscription, you can cancel at any time via Account Settings > Subscription > Cancel Plan. The cancellation will be effective at the end of your current billing cycle. Following cancellation, your data is retained for 90 days should you decide to reactivate your account.",
+      "trace_id": "93aa46fcdda246f3bab88e62dfefba14",
+      "outcome_checks": [
+        {
+          "name": "expected_sources_all",
+          "passed": true,
+          "reason": "all 2 expected sources present"
+        },
+        {
+          "name": "forbidden_sources",
+          "passed": true,
+          "reason": "no forbidden sources present"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['90 days']"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_repeated_search",
+          "passed": true,
+          "reason": "no repeated queries across 2 searches"
+        },
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        },
+        {
+          "name": "step_efficiency",
+          "passed": true,
+          "reason": "2 search step(s) for 2 expected topic(s)"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified both parts of the user's query, performed relevant searches for each, and accurately synthesized the information found in the observations into a complete answer."
+    },
+    {
+      "id": "r2",
+      "question": "why is my order delayed, how do I get a refund for a defective item, and why was I charged the wrong amount",
+      "problem_type": "retrieval_failure",
+      "seconds": 8.463490499998443,
+      "llm_calls": 4,
+      "steps_taken": 4,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "Regarding your order delay, if your order is domestic and has been delayed more than 7 business days past the estimated delivery date, we first check the carrier tracking link. If there has been no movement in the last 3 days, we can file a 'lost in transit' claim and offer a full reshipment or a full refund. \n\nFor defective items, you are eligible for a full refund as long as the defect is reported within 90 days of delivery and you provide a photo of the damage. This process overrides standard refund windows.\n\nRegarding the incorrect charge, these are not automatically reversed by our payment processor. Please provide a screenshot of the advertised price and the actual charge so that I can escalate this to the billing team, who will manually adjust the charge within 2 business days.",
+      "trace_id": "4f3f5222502e40c58f12f8351841d842",
+      "outcome_checks": [
+        {
+          "name": "expected_sources_all",
+          "passed": true,
+          "reason": "all 3 expected sources present"
+        },
+        {
+          "name": "forbidden_sources",
+          "passed": false,
+          "reason": "forbidden source(s) present: ['ticket_002_refund_window.txt', 'ticket_005_billing_dispute.txt']"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": true,
+          "reason": "all keywords present: ['90 days']"
+        }
+      ],
+      "outcome_passed": false,
+      "trajectory_checks": [
+        {
+          "name": "terminal_action",
+          "passed": false,
+          "reason": "expected 'escalate', agent used 'finish'"
+        },
+        {
+          "name": "no_repeated_search",
+          "passed": true,
+          "reason": "no repeated queries across 3 searches"
+        },
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        },
+        {
+          "name": "step_efficiency",
+          "passed": true,
+          "reason": "3 search step(s) for 3 expected topic(s)"
+        }
+      ],
+      "trajectory_rule_passed": false,
+      "trajectory_passed": false,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified all three parts of the customer's query, performed relevant searches for each, and synthesized the information accurately into the final response."
+    },
+    {
+      "id": "r3",
+      "question": "what's the best pizza topping?",
+      "problem_type": "refusal_misfire",
+      "seconds": 3.836412200005725,
+      "llm_calls": 2,
+      "steps_taken": 2,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "I don't know based on the available documents.",
+      "trace_id": "0d4e5967f57d4e17b564aaf3144cdba2",
+      "outcome_checks": [
+        {
+          "name": "must_refuse",
+          "passed": true,
+          "reason": "correctly refused"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified that the provided knowledge base did not contain the requested information and acted accordingly."
+    },
+    {
+      "id": "r4",
+      "question": "What is the recommended management ratio for customer support teams according to the guide?",
+      "problem_type": "retrieval_failure",
+      "seconds": 6.1973822000436485,
+      "llm_calls": 3,
+      "steps_taken": 3,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "I don't know based on the available documents.",
+      "trace_id": "fe77ace2e894493d86a3a409d90829cd",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'customer support.pdf' present"
+        },
+        {
+          "name": "must_cite_page",
+          "passed": true,
+          "reason": "page(s) present: [5, 3, 18, 6, 8, 4]"
+        },
+        {
+          "name": "expected_keywords",
+          "passed": false,
+          "reason": "missing keyword(s): ['5-15']"
+        }
+      ],
+      "outcome_passed": false,
+      "trajectory_checks": [
+        {
+          "name": "no_repeated_search",
+          "passed": true,
+          "reason": "no repeated queries across 2 searches"
+        },
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": false,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "POOR",
+      "judge_reason": "The agent failed to search for the specific term 'ratio' or 'span of control' in a third attempt, which is the standard terminology for management ratios and would likely have surfaced the relevant section if it existed, thus failing to exhaust reasonable search avenues before concluding the information was unavailable."
+    },
+    {
+      "id": "r5",
+      "question": "how do I contact customer support",
+      "problem_type": "retrieval_failure",
+      "seconds": 10.330144600011408,
+      "llm_calls": 3,
+      "steps_taken": 3,
+      "stopped_reason": "finished",
+      "escalated": false,
+      "answer": "I don't know based on the available documents.",
+      "trace_id": "03a4f326c7a2416d80579f80039df9dc",
+      "outcome_checks": [
+        {
+          "name": "expected_source",
+          "passed": true,
+          "reason": "'customer support.pdf' present"
+        },
+        {
+          "name": "must_cite_page",
+          "passed": true,
+          "reason": "page(s) present: [1, 29, 2, 16, 4, 22]"
+        }
+      ],
+      "outcome_passed": true,
+      "trajectory_checks": [
+        {
+          "name": "no_repeated_search",
+          "passed": true,
+          "reason": "no repeated queries across 2 searches"
+        },
+        {
+          "name": "no_wasted_steps",
+          "passed": true,
+          "reason": "no wasted (unrecognized/malformed) steps"
+        }
+      ],
+      "trajectory_rule_passed": true,
+      "trajectory_passed": true,
+      "outcome_trajectory_gap": false,
+      "judge_verdict": "GOOD",
+      "judge_reason": "The agent correctly identified that the search results contained only general guides about customer support strategies rather than specific contact details for the company, and appropriately escalated/finished with an 'I don't know' response based on the lack of supporting evidence in the observations."
+    }
+  ]
+}

@@ -132,7 +132,7 @@ export default function App() {
             </div>
           )}
 
-          <div className={page === 'ask' ? 'page page-full' : 'page'}>
+          <div className={page === 'ask' || page === 'traces' ? 'page page-full' : 'page'}>
             {page === 'dashboard' && <Dashboard health={health} documents={documents} setPage={setPage} />}
             {page === 'documents' && <Documents documents={documents} refresh={refresh} notifyError={notifyError} />}
             {page === 'retrieve' && <Retrieve notifyError={notifyError} />}
@@ -716,13 +716,17 @@ function Traces({ notifyError }) {
   }
 
   const visible = traces.filter((t) => {
-    if (filter !== 'all' && t.outcome !== filter) return false
+    // Same fix as OutcomeBadge: compare against the DISPLAY category, not
+    // the raw outcome string, so an agent trace with outcome
+    // "agent_answer" still matches the "Answered" filter tab instead of
+    // only ever matching "All".
+    if (filter !== 'all' && (OUTCOME_DISPLAY[t.outcome]?.cls ?? 'error') !== filter) return false
     if (unreviewedOnly && t.annotation?.reviewed) return false
     return true
   })
 
   return (
-    <div className="card">
+    <div className="card trace-review-card">
       <div className="card-head">
         <div>
           <h2>Trace review</h2>
@@ -772,15 +776,31 @@ function Traces({ notifyError }) {
   )
 }
 
+// Week 8: agent traces use their own outcome values (agent_answer,
+// agent_escalated, agent_budget_exhausted) -- distinct from the fixed
+// pipeline's (answer, refusal, error). Before this map existed, every
+// agent trace fell through to the "else" case below and showed "Error"
+// regardless of whether it actually succeeded, escalated, or ran out of
+// budget -- a real bug, not a description of most agent runs failing.
+const OUTCOME_DISPLAY = {
+  answer: { label: 'Answered', cls: 'answer' },
+  refusal: { label: 'Refused', cls: 'refusal' },
+  agent_answer: { label: 'Answered', cls: 'answer' },
+  agent_escalated: { label: 'Escalated', cls: 'refusal' },
+  agent_budget_exhausted: { label: 'Budget exhausted', cls: 'error' },
+  error: { label: 'Error', cls: 'error' },
+}
+
 function OutcomeBadge({ outcome }) {
-  const label = outcome === 'answer' ? 'Answered' : outcome === 'refusal' ? 'Refused' : 'Error'
-  const cls = outcome === 'answer' ? 'answer' : outcome === 'refusal' ? 'refusal' : 'error'
+  const { label, cls } = OUTCOME_DISPLAY[outcome] ?? { label: 'Error', cls: 'error' }
   return <span className={`status-badge ${cls}`}>{label}</span>
 }
 
 function TraceDetail({ trace, onSaved, notifyError }) {
+  const isAgentTrace = trace.config?.mode === 'agent'
   const retrievalStage = trace.stages?.find((s) => s.name === 'retrieval')
   const chunks = retrievalStage?.data?.chunks ?? []
+  const agentStages = trace.stages?.filter((s) => s.name === 'agent_step' || s.name === 'agent_stopped') ?? []
 
   const [reviewed, setReviewed] = useState(Boolean(trace.annotation?.reviewed))
   const [problemType, setProblemType] = useState(trace.annotation?.problem_type ?? '')
@@ -788,6 +808,7 @@ function TraceDetail({ trace, onSaved, notifyError }) {
   const [note, setNote] = useState(trace.annotation?.failure_note ?? '')
   const [saved, setSaved] = useState(false)
   const [saving, setSaving] = useState(false)
+  const [trajectory, setTrajectory] = useState(null)
 
   useEffect(() => {
     setReviewed(Boolean(trace.annotation?.reviewed))
@@ -795,6 +816,11 @@ function TraceDetail({ trace, onSaved, notifyError }) {
     setSeverity(trace.annotation?.severity ?? null)
     setNote(trace.annotation?.failure_note ?? '')
     setSaved(false)
+    setTrajectory(null)
+
+    if (isAgentTrace) {
+      api.get(`/traces/${trace.trace_id}/trajectory`).then(setTrajectory).catch(() => setTrajectory(null))
+    }
   }, [trace.trace_id])
 
   // The backend refuses to save a problem_type without an accompanying
@@ -824,17 +850,51 @@ function TraceDetail({ trace, onSaved, notifyError }) {
         <h3>{trace.question}</h3>
         <div className="trace-detail-meta">
           <OutcomeBadge outcome={trace.outcome} />
-          <span className="pill">top_k {trace.config?.top_k ?? 3}</span>
-          <span className="pill">{trace.config?.model ?? ''}</span>
+          {isAgentTrace && <span className="pill">agent</span>}
+          {isAgentTrace && trajectory && (
+            <span className={`status-badge ${trajectory.passed ? 'answer' : 'error'}`}>
+              Trajectory: {trajectory.passed ? 'PASS' : 'FAIL'}
+            </span>
+          )}
+          {/* config shape differs by trace type -- agent traces never had
+              top_k/model fields (only max_steps/max_seconds/
+              preferred_provider), so the old fixed "top_k N" + empty
+              "model" pill was either misleading or a dead empty badge. */}
+          {isAgentTrace ? (
+            <>
+              <span className="pill">max {trace.config?.max_steps ?? '?'} steps</span>
+              <span className="pill">max {trace.config?.max_seconds ?? '?'}s</span>
+            </>
+          ) : (
+            trace.config?.top_k != null && <span className="pill">top_k {trace.config.top_k}</span>
+          )}
+          {trace.config?.preferred_provider && <span className="pill">{trace.config.preferred_provider}</span>}
         </div>
       </div>
 
       <div className="trace-answer-block">{trace.answer || trace.error || 'No answer text recorded.'}</div>
 
-      <div>
-        <h4 style={{ fontSize: '0.9rem', marginBottom: '0.6rem' }}>Retrieved evidence</h4>
-        <Evidence chunks={chunks} scoreKey="distance" />
-      </div>
+      {isAgentTrace && trajectory && trajectory.checks.length > 0 && (
+        <div className="trajectory-checks">
+          {trajectory.checks.map((c) => (
+            <div key={c.name} className={`trajectory-check-row${c.passed ? '' : ' failed'}`}>
+              {c.passed ? 'PASS' : 'FAIL'} &middot; {c.name}: {c.reason}
+            </div>
+          ))}
+        </div>
+      )}
+
+      {isAgentTrace ? (
+        <div>
+          <h4 style={{ fontSize: '0.9rem', marginBottom: '0.6rem' }}>Agent steps</h4>
+          <AgentSteps stages={agentStages} />
+        </div>
+      ) : (
+        <div>
+          <h4 style={{ fontSize: '0.9rem', marginBottom: '0.6rem' }}>Retrieved evidence</h4>
+          <Evidence chunks={chunks} scoreKey="distance" />
+        </div>
+      )}
 
       <div className="annotation-panel">
         <h4>Label this trace</h4>
@@ -876,6 +936,45 @@ function TraceDetail({ trace, onSaved, notifyError }) {
         {needsNoteFirst && <p style={{ color: 'var(--warn)', fontSize: '0.82rem', marginTop: '0.5rem' }}>Write a note above before assigning a failure type.</p>}
         {saved && <p className="annotation-saved">Saved.</p>}
       </div>
+    </div>
+  )
+}
+
+function AgentSteps({ stages }) {
+  if (stages.length === 0) return <p className="empty-state">No steps recorded.</p>
+
+  return (
+    <div className="agent-steps">
+      {stages.map((stage, i) => {
+        if (stage.name === 'agent_stopped') {
+          return (
+            <div key={i} className="agent-step agent-step-stopped">
+              <b>Stopped:</b> {stage.data.reason}
+            </div>
+          )
+        }
+        const d = stage.data
+        return (
+          <div key={i} className="agent-step">
+            <div className="agent-step-head">
+              <span className="pill">Step {d.step}</span>
+              <span className="pill">{d.action}</span>
+              {d.blocked && <span className="status-badge error">blocked: {d.blocked}</span>}
+              {d.error && <span className="status-badge error">{d.error}</span>}
+            </div>
+            {d.thought && <p className="agent-step-thought">{d.thought}</p>}
+            {d.action_input && (
+              <p className="agent-step-input"><code>{JSON.stringify(d.action_input)}</code></p>
+            )}
+            {d.observation && (
+              <details className="agent-step-observation">
+                <summary>Observation ({d.result_count ?? '?'} result(s))</summary>
+                <pre>{d.observation}</pre>
+              </details>
+            )}
+          </div>
+        )
+      })}
     </div>
   )
 }

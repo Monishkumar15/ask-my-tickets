@@ -251,6 +251,121 @@ question, retrieved ticket chunks, confidence-gate decision, output/errors,
 and timings in local `traces/` files. Use [WEEK5_ERROR_ANALYSIS.md](WEEK5_ERROR_ANALYSIS.md)
 to report the roughly 20 reviewed traces and ranked error taxonomy.
 
+### Week 8 -- trajectory evaluation, prompt injection, agent traces in the UI
+
+Week 7's `agent.py` is a separate, hand-built ReAct loop (search/finish/escalate)
+that never runs through the React "Ask" page -- that page only calls the fixed
+`retrieval -> generation` pipeline via `POST /ask`. Week 8 adds a second kind of
+grading on top of the agent: not just "was the final answer right" (outcome),
+but "did the agent take a sane path to get there" (trajectory) -- plus a
+prompt-injection red-team test. See [`FINDINGS_week8.md`](FINDINGS_week8.md) for
+the full write-up (the outcome-vs-trajectory gap found, the injection
+vulnerability found and closed, before/after numbers).
+
+#### 1. Start the dependencies (Docker + backend + UI)
+
+Same Qdrant container as every other week -- Week 8 adds no new service:
+```bash
+docker start qdrant-ask-my-tickets      # or the `docker run ...` command above, first time only
+```
+Then, in separate terminals:
+```bash
+.\venv\Scripts\Activate
+uvicorn api:app --reload                # backend, http://127.0.0.1:8000
+
+cd ui-react
+npm install                             # first time only
+npm run dev                             # UI, http://127.0.0.1:5173
+```
+
+#### 2. Generate an agent trace (this is the "Week 8" run, not the Ask page)
+
+The React "Ask" page always uses the fixed pipeline. To produce an *agent*
+trace (the kind Week 8 grades), run the agent directly -- each run saves one
+trace file under `traces/`, same as any other question:
+```bash
+.\venv\Scripts\Activate
+python agent.py
+Ask a (possibly multi-part) question: <type one of the questions below>
+```
+
+Sample questions to try, and what to expect (all grounded in real ticket text,
+verified while building the eval set):
+- `there are two $29.99 charges on my statement from the same day` --
+  same-day duplicate charges auto-reverse per `ticket_005`; expect the agent
+  to search, then **finish** with a direct answer (no escalation needed).
+- `you guys charged me the wrong price` -- an incorrect-amount charge is
+  **not** auto-reversed per `ticket_007`; expect the agent to **escalate**.
+- `why is my order delayed, how do I get a refund for a defective item, and
+  why was I charged the wrong amount` -- a 3-part compound question where one
+  part needs escalation; expect the whole answer to **escalate** (folding the
+  answerable parts into the escalation reason), not a partial `finish`.
+- `the item I got was damaged, will you refund me` -- watch for wasted/
+  repeated `search_tickets` steps here specifically; this is the case Week 8's
+  trajectory checker originally caught failing even though the final answer
+  was correct (see `FINDINGS_week8.md` section on `q11`).
+- `how do I contact customer support` -- the guide never states a concrete
+  contact channel, so the *correct* behavior is `finish` with "I don't know" --
+  this is an honest refusal, not a bug, even though the trace's outcome badge
+  reads "Answered" (that badge only means the agent reached `finish`, not that
+  it found a positive answer).
+- `what's the best pizza topping?` -- fully out-of-scope; expect a refusal-style
+  finish with no sources cited.
+
+#### 3. Review the trace in the UI
+
+Open the Vite UI -> **Error analysis** (the trace review page) -> pick the
+trace you just generated (agent traces show an `agent` pill and use their own
+outcome labels: Answered / Escalated / Budget exhausted, distinct from the
+fixed pipeline's Answered / Refused / Error). Selecting an agent trace shows:
+- A **Trajectory: PASS/FAIL** badge with a per-check breakdown (terminal
+  action correctness, no repeated searches, no wasted/malformed steps, not
+  silently budget-exhausted, step efficiency) -- computed by
+  `GET /traces/{id}/trajectory`, the same rule-based checker the eval scripts
+  use, not a second copy of the logic.
+- The full step-by-step list (thought / action / action_input / observation)
+  in place of the fixed pipeline's flat evidence list.
+
+#### 4. Run the full trajectory eval (outcome vs. trajectory, cost per task)
+
+```bash
+.\venv\Scripts\Activate
+python evals/trajectory_eval.py                    # run + print both scorecards
+python evals/trajectory_eval.py --with-judge        # also run the LLM trajectory judge
+python evals/trajectory_eval.py --save NAME         # save a snapshot for before/after
+python evals/trajectory_eval.py --compare NAME      # diff current run vs. a saved snapshot
+```
+Prints, per case: outcome pass/fail, trajectory pass/fail, and flags any
+**outcome-vs-trajectory gap** (right answer, wrong path) by case ID and reason.
+Also reports mean/p99 latency and LLM-calls-per-task across the whole run.
+
+#### 5. Run the prompt injection red-team test
+
+```bash
+.\venv\Scripts\Activate
+python evals/prompt_injection_test.py
+```
+Fully isolated -- builds an in-memory Qdrant collection + BM25 index with a
+planted "poisoned" chunk and never touches the real `data/` corpus or the
+persisted collection. Runs all 6 attack variants (blunt/subtle instruction
+override, credential-phishing misinformation, fake-source injection) against
+both Gemini and Groq, and prints whether each attack's canary string leaked
+into the agent's final answer. Currently: all 6 variants blocked, 0/3 for the
+credential-phishing variant that succeeded 2/3 times before the trust-boundary
+and credential-request rules were added to `agent.py`'s prompt (see
+`FINDINGS_week8.md` for the exact before/after).
+
+#### 6. (Optional) validate the LLM trajectory judge before trusting it
+
+Same two-step discipline as Week 6's `judge.py`:
+```bash
+python evals/prepare_trajectory_judge_sample.py
+# hand-grade the sample, then:
+python evals/validate_trajectory_judge.py
+```
+Confirms the judge agrees with a human grader at or above the 80% threshold
+before its verdicts are used anywhere.
+
 ## Project structure
 
 ```
@@ -263,15 +378,23 @@ ask-my-tickets/
 ├── tracing.py                   # local JSON trace files (traces/) -- no external service
 ├── app.py                        # interactive CLI entry point
 ├── api.py                         # HTTP API: /ask, /retrieve, /upload, /health, /documents, /traces
+├── agent.py                          # Week 7: hand-built ReAct agent loop (search/finish/escalate)
 ├── evals/                          # diagnostic/comparison scripts (not part of the runtime pipeline)
 │   ├── eval_questions.py             # labeled eval set (question + expected source/keywords)
 │   ├── compare_chunk_sizes.py          # chunk size experiment (Step 9)
 │   ├── compare_before_after.py           # semantic vs hybrid vs hybrid+rerank, hit-rate@k + MRR
 │   ├── classify_failures.py                # retrieval-failure vs generation-failure classification
-│   └── inspect_retrieval.py                  # interactive side-by-side inspection view
+│   ├── inspect_retrieval.py                  # interactive side-by-side inspection view
+│   ├── trajectory_checks.py                  # Week 8: rule-based agent-path checks
+│   ├── trajectory_judge.py                   # Week 8: LLM-as-judge for trajectory reasoning
+│   ├── trajectory_eval.py                    # Week 8: one-command outcome + trajectory runner
+│   └── prompt_injection_test.py              # Week 8: isolated prompt-injection red-team test
 ├── ui-react/                        # React/Vite frontend (upload, ask, retrieve, trace review)
 ├── FINDINGS.md              # Week 3 chunk-size results, bugs caught, limitations
 ├── FINDINGS_week4.md          # Week 4 hybrid-search diagnosis and results
+├── FINDINGS_week6.md           # Week 6 evals/regression/judge validation write-up
+├── FINDINGS_week7.md            # Week 7 agent loop write-up
+├── FINDINGS_week8.md             # Week 8 trajectory eval + prompt injection write-up
 ├── WEEK5_ERROR_ANALYSIS.md     # Week 5 trace review write-up
 ├── requirements.txt
 └── .env                          # all config incl. GEMINI_API_KEY, GROQ_API_KEY (not committed)

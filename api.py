@@ -8,6 +8,7 @@ Then open http://127.0.0.1:8000/docs for interactive API docs.
 
 import os
 import shutil
+import sys
 from pathlib import Path
 
 from fastapi import FastAPI, File, HTTPException, UploadFile
@@ -22,6 +23,14 @@ from ingestion import count as count_chunks
 from retrieval import retrieve
 from sessions import add_message, create_session, delete_session, get_session, list_sessions
 from tracing import annotate, get as get_trace, list_recent
+
+# evals/ is normally a one-way dependency (eval scripts import from the app
+# root, never the reverse) -- this is the one exception: the Week 8
+# trajectory checker belongs in evals/ alongside assertions.py, but the
+# React trace viewer needs the same check the eval scripts use, not a
+# second copy of the logic.
+sys.path.insert(0, os.path.join(os.path.dirname(os.path.abspath(__file__)), "evals"))
+from trajectory_checks import run_trajectory_checks
 
 app = FastAPI(title="Ask My Tickets API")
 app.add_middleware(
@@ -231,6 +240,25 @@ def trace_detail(trace_id: str):
     record = get_trace(trace_id)
     if record is None: raise HTTPException(status_code=404, detail="Trace not found")
     return record
+
+@app.get("/traces/{trace_id}/trajectory")
+def trace_trajectory(trace_id: str):
+    """
+    Week 8: rule-based trajectory verdict for one agent trace, for the
+    React trace viewer's "Error analysis" page. An arbitrary live trace has
+    no eval "case" (no expected_terminal_action/expected_sources_all to
+    check against) -- passing an empty case runs only the checks that
+    don't need one (no_repeated_search, no_wasted_steps,
+    not_silently_incomplete), which is exactly the right scope for
+    inspecting a trace nobody labeled ahead of time.
+    """
+    record = get_trace(trace_id)
+    if record is None: raise HTTPException(status_code=404, detail="Trace not found")
+    if record.get("config", {}).get("mode") != "agent":
+        raise HTTPException(status_code=400, detail="Not an agent trace")
+    checks = run_trajectory_checks({}, record)
+    passed = all(c["passed"] for c in checks) if checks else True
+    return {"passed": passed, "checks": checks}
 
 @app.post("/traces/{trace_id}/annotation")
 def annotate_trace(trace_id: str, annotation: TraceAnnotation):

@@ -76,6 +76,12 @@ def _call_provider(provider_name, prompt, temperature=DEFAULT_TEMPERATURE):
             "messages": [{"role": "user", "content": prompt}],
             "temperature": temperature,
         },
+        # Found live during Week 8 eval runs: with no timeout, a stalled
+        # connection blocks forever -- no retry, no fallback to the other
+        # provider, nothing recoverable. 60s is generous above any real
+        # observed latency (worst case measured ~17s for a multi-step
+        # agent's single call) but still bounded.
+        timeout=60,
     )
     response.raise_for_status()
     data = response.json()

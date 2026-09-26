@@ -236,20 +236,35 @@ textarea, input, select { font: inherit; color: inherit; }
 .doc-empty { color: var(--text-faint); font-size: 0.9rem; margin-top: 1rem; }
 
 /* ---------- traces ---------- */
-.trace-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; }
+/* Trace review card: fills the full page (page-full), header/toolbar
+   stay fixed, and the two columns below scroll independently to the
+   actual remaining height -- not a guessed vh value, and not the page
+   itself scrolling (which previously left dead space on wide screens
+   and produced a page-level scrollbar instead of one per panel). */
+.trace-review-card { display: flex; flex-direction: column; flex: 1; min-height: 0; }
+.trace-review-card .card-head { flex-shrink: 0; }
+
+.trace-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; flex-shrink: 0; }
 .filter-tabs { display: flex; gap: 0.3rem; background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: 999px; padding: 0.2rem; }
 .filter-tabs button { background: transparent; border: 0; border-radius: 999px; padding: 0.35rem 0.85rem; font-size: 0.8rem; font-weight: 650; color: var(--text-dim); }
 .filter-tabs button.active { background: var(--accent-soft); color: var(--accent); }
 .checkbox-inline { display: flex; align-items: center; gap: 0.4rem; font-size: 0.85rem; color: var(--text-dim); }
 
-.trace-layout { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 1.25rem; align-items: start; }
-.trace-list { display: grid; gap: 0.5rem; max-height: 65vh; overflow: auto; padding-right: 0.25rem; }
-.trace-row { display: grid; gap: 0.4rem; text-align: left; background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 0.75rem 0.85rem; }
+.trace-layout { display: grid; grid-template-columns: minmax(0, 320px) minmax(0, 1fr); gap: 1.25rem; align-items: stretch; flex: 1; min-height: 0; }
+
+.trace-list {
+  display: grid; grid-template-columns: minmax(0, 1fr); /* explicit 1fr track --
+    without this, an implicit grid track sizes to its widest child's
+    max-content width, which silently defeats the nowrap+ellipsis
+    truncation below and was the actual cause of the horizontal scrollbar */
+  gap: 0.5rem; align-content: start; min-height: 0; overflow-y: auto; padding-right: 0.25rem;
+}
+.trace-row { display: grid; gap: 0.4rem; text-align: left; background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 0.75rem 0.85rem; width: 100%; min-width: 0; box-sizing: border-box; }
 .trace-row:hover { border-color: var(--accent-dim); }
 .trace-row.selected { border-color: var(--accent); background: var(--accent-soft); }
-.trace-row-top { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; }
-.trace-row b { font-size: 0.86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
-.trace-row-meta { display: flex; gap: 0.4rem; align-items: center; }
+.trace-row-top { display: flex; justify-content: space-between; align-items: center; gap: 0.5rem; min-width: 0; }
+.trace-row b { font-size: 0.86rem; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; min-width: 0; flex: 1; }
+.trace-row-meta { display: flex; gap: 0.4rem; align-items: center; flex-wrap: wrap; }
 
 .status-badge { font-size: 0.68rem; font-weight: 800; letter-spacing: 0.03em; text-transform: uppercase; border-radius: 5px; padding: 0.15rem 0.45rem; white-space: nowrap; }
 .status-badge.answer { background: var(--good-soft); color: var(--good); }
@@ -257,9 +272,9 @@ textarea, input, select { font: inherit; color: inherit; }
 .status-badge.error { background: var(--bad-soft); color: var(--bad); }
 .reviewed-dot { width: 0.45rem; height: 0.45rem; border-radius: 50%; background: var(--good); flex-shrink: 0; }
 
-.trace-detail { display: grid; gap: 1rem; }
+.trace-detail { display: grid; gap: 1rem; align-content: start; min-height: 0; overflow-y: auto; padding-right: 0.5rem; }
 .trace-detail-head h3 { font-size: 1.05rem; line-height: 1.4; }
-.trace-detail-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; }
+.trace-detail-meta { display: flex; gap: 0.5rem; flex-wrap: wrap; margin-top: 0.5rem; align-items: center; }
 .trace-answer-block { color: var(--text-dim); font-size: 0.9rem; line-height: 1.55; white-space: pre-wrap; background: var(--panel-2); border-radius: var(--radius-sm); padding: 0.85rem 1rem; border: 1px solid var(--border-soft); }
 
 .annotation-panel { background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: var(--radius); padding: 1.1rem 1.2rem; }
@@ -270,6 +285,20 @@ textarea, input, select { font: inherit; color: inherit; }
 .annotation-saved { color: var(--good); font-size: 0.82rem; margin-top: 0.5rem; }
 
 .empty-state { color: var(--text-faint); font-size: 0.9rem; padding: 2rem 0; text-align: center; }
+
+/* Week 8: agent trajectory view */
+.trajectory-checks { display: grid; gap: 0.3rem; }
+.trajectory-check-row { font-size: 0.85rem; color: var(--good); }
+.trajectory-check-row.failed { color: var(--bad); }
+
+.agent-steps { display: grid; gap: 0.75rem; }
+.agent-step { background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: var(--radius-sm); padding: 0.75rem 0.9rem; }
+.agent-step-head { display: flex; gap: 0.4rem; align-items: center; margin-bottom: 0.5rem; }
+.agent-step-thought { color: var(--text-dim); font-size: 0.88rem; line-height: 1.5; margin-bottom: 0.4rem; }
+.agent-step-input { font-size: 0.8rem; color: var(--text-faint); margin-bottom: 0.4rem; }
+.agent-step-observation summary { cursor: pointer; font-size: 0.8rem; color: var(--text-dim); }
+.agent-step-observation pre { white-space: pre-wrap; font-size: 0.8rem; color: var(--text-dim); margin-top: 0.4rem; }
+.agent-step-stopped { background: var(--warn-soft); border: 1px solid rgba(251, 191, 36, 0.35); color: var(--warn); border-radius: var(--radius-sm); padding: 0.75rem 0.9rem; font-size: 0.88rem; }
 
 /* ---------- chat (Ask page) ---------- */
 .chat-shell { display: flex; gap: 1.25rem; flex: 1; min-height: 0; width: 100%; }

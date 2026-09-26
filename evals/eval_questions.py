@@ -46,7 +46,12 @@ EVAL_QUESTIONS = [
     {"id": "q4", "question": "I want to go to Account Settings, Subscription, then Cancel Plan -- what happens after that?",
      "expected_source": "ticket_004_account_cancellation.txt", "expected_keywords": ["90 days"]},
     {"id": "q5", "question": "there are two $29.99 charges on my statement from the same day",
-     "expected_source": "ticket_005_billing_dispute.txt", "expected_keywords": ["reversed"]},
+     "expected_source": "ticket_005_billing_dispute.txt", "expected_keywords": ["reversed"],
+     # Week 8 (agent trajectory only): ticket_005 says duplicate same-day
+     # charges are auto-reversed by the payment processor -- no unresolved
+     # condition is established by this question, so a direct answer is
+     # correct. Contrasts with q12's escalate case below.
+     "expected_terminal_action": "finish"},
     {"id": "q6", "question": "it's been 45 days since I bought it, can I still get money back?",
      "expected_source": "ticket_002_refund_window.txt", "expected_keywords": ["50%"]},
     {"id": "q7", "question": "carrier says lost in transit, what do we do for the customer?",
@@ -54,7 +59,11 @@ EVAL_QUESTIONS = [
     {"id": "q11", "question": "the item I got was damaged, will you refund me",
      "expected_source": "ticket_006_defective_item_refund.txt", "expected_keywords": ["90 days"]},
     {"id": "q12", "question": "you guys charged me the wrong price",
-     "expected_source": "ticket_007_incorrect_charge_amount.txt", "expected_keywords": ["2 business days"]},
+     "expected_source": "ticket_007_incorrect_charge_amount.txt", "expected_keywords": ["2 business days"],
+     # Week 8 (agent trajectory only): ticket_007 says incorrect-amount
+     # charges are NOT auto-reversed and must be escalated to billing --
+     # unlike q5's duplicate-charge case above.
+     "expected_terminal_action": "escalate"},
 
     # --- Bucket C: hypothesized GENERATION failures (right doc should be
     #     easy to retrieve, but the answer needs an exact fact an LLM might
@@ -104,7 +113,13 @@ REGRESSION_CASES = [
          "ticket_007_incorrect_charge_amount.txt",
      ],
      "forbidden_sources": ["ticket_002_refund_window.txt", "ticket_005_billing_dispute.txt"],
-     "expected_keywords": ["90 days"]},
+     "expected_keywords": ["90 days"],
+     # Week 8 (agent trajectory only): one of the 3 sub-topics here
+     # (ticket_007, wrong charge amount) requires escalation. Per agent.py's
+     # own prompt design, a multi-part question with even one part needing
+     # escalation should still escalate overall, folding the answerable
+     # parts into the escalation reason.
+     "expected_terminal_action": "escalate"},
 
     # The confidence gate must still refuse a genuinely out-of-scope
     # question -- this is the "must be correctly refused" counterpart to
@@ -113,11 +128,20 @@ REGRESSION_CASES = [
      "question": "what's the best pizza topping?",
      "must_refuse": True},
 
-    # A fact that genuinely isn't in the documents (verified by reading the
-    # full PDF text) must be refused honestly, not hallucinated.
-    {"id": "r4", "problem_type": "refusal_misfire",
+    # CORRECTED in Week 8: this case was originally labeled must_refuse=True
+    # on the claim that this fact "isn't in the documents" -- that claim was
+    # wrong. Page 7 of customer support.pdf states it directly: "1 manager
+    # per 5-15 employees works as a good rule of thumb." Found while
+    # hand-grading the Week 8 trajectory judge sample: the agent answered
+    # this correctly (searched once, noticed its own result didn't contain
+    # the number, re-searched more precisely, found and cited page 7) --
+    # investigating why a "correct, well-reasoned" answer failed an
+    # assertion surfaced that the assertion's own ground truth was the bug,
+    # not the agent. Re-verified directly against the PDF text before
+    # changing this (see FINDINGS_week8.md).
+    {"id": "r4", "problem_type": "retrieval_failure",
      "question": "What is the recommended management ratio for customer support teams according to the guide?",
-     "must_refuse": True},
+     "expected_source": "customer support.pdf", "expected_keywords": ["5-15"], "must_cite_page": True},
 
     # PDF chunks must carry a page number (the pypdf -> PyMuPDF /
     # page-aware-chunking fix) -- a .txt-only regression here would mean
