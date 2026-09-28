@@ -20,6 +20,7 @@ import re
 
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
+from langfuse import observe
 from rank_bm25 import BM25Okapi
 from sentence_transformers import CrossEncoder
 
@@ -317,6 +318,7 @@ def _get_bm25():
     return _bm25_cache
 
 
+@observe(as_type="span", name="retrieval")
 def retrieve(question, top_k=DEFAULT_TOP_K, model=None, client=None):
     """
     The full, current-best pipeline: hybrid search widens the candidate

@@ -12,6 +12,8 @@ import os
 import sys
 from contextlib import AsyncExitStack
 
+from langfuse import observe
+from langfuse import get_client as get_langfuse_client
 from mcp import ClientSession
 from mcp.client.stdio import StdioServerParameters, stdio_client
 from mcp.client.streamable_http import create_mcp_http_client, streamable_http_client
@@ -98,6 +100,7 @@ class MCPToolSession:
             for t in result.tools
         ]
 
+    @observe(as_type="tool", name="mcp-tool-call")
     async def call_tool(self, name, arguments):
         """
         Calls an MCP tool and returns its result as a list of dicts -- the
@@ -105,6 +108,7 @@ class MCPToolSession:
         produce, so agent.py's downstream logic (dedup, _validate_sources)
         needs zero changes regardless of which tool was called.
         """
+        get_langfuse_client().update_current_span(metadata={"tool_name": name, "arguments": arguments})
         result = await self.session.call_tool(name, arguments)
         if result.is_error:
             text = "; ".join(getattr(block, "text", str(block)) for block in result.content)

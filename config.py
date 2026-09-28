@@ -178,3 +178,14 @@ MCP_SERVER_URL = os.getenv("MCP_SERVER_URL", f"http://{MCP_SERVER_HOST}:{MCP_SER
 # already had to be able to launch a local subprocess), so there is no
 # remote party to gate out there.
 MCP_SHARED_SECRET = os.getenv("MCP_SHARED_SECRET", "")
+
+# --- Langfuse (observability) ---
+# Additive, hosted tracing layered on top of tracing.py's local JSON traces
+# (not a replacement -- traces/*.json keeps working unchanged). The Langfuse
+# SDK's own client also auto-reads these exact env-var names directly, but
+# they're exposed here too so this project's "every env var goes through
+# config.py" rule stays intact and /health can report present/missing like
+# it already does for GEMINI_API_KEY/GROQ_API_KEY.
+LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", "")
+LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", "")
+LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://us.cloud.langfuse.com")

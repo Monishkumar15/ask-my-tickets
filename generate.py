@@ -8,6 +8,8 @@ endpoint, so the same request shape works for either.
 """
 
 import requests
+from langfuse import observe
+from langfuse import get_client as get_langfuse_client
 
 from config import (
     DEFAULT_LLM_PROVIDER,
@@ -57,6 +59,15 @@ Give a complete answer: include the relevant conditions, numbers, or
 exceptions mentioned in the context, not just a bare one-line restatement.
 Do not add any detail that isn't actually in the context below.
 
+You are speaking directly to the customer. The context is often written as
+internal instructions for a support AGENT (e.g. "agents should...",
+"customer service representatives must inform the customer..." ) -- that is
+backstage language, not something the customer should ever see. Rewrite any
+such instruction in your own words as something YOU are doing for the
+customer (first person: "we will...", "I'll..."), and never mention
+"agents", "staff", "representatives", or that you were instructed to do
+something.
+
 Context:
 {context}
 
@@ -65,6 +76,7 @@ Question: {question}
 Answer:"""
 
 
+@observe(as_type="generation", name="llm-call")
 def _call_provider(provider_name, prompt, temperature=DEFAULT_TEMPERATURE):
     """POST to one provider's OpenAI-compatible chat-completions endpoint."""
     provider = PROVIDERS[provider_name]
@@ -85,7 +97,14 @@ def _call_provider(provider_name, prompt, temperature=DEFAULT_TEMPERATURE):
     )
     response.raise_for_status()
     data = response.json()
-    return data["choices"][0]["message"]["content"]
+    answer = data["choices"][0]["message"]["content"]
+    get_langfuse_client().update_current_generation(
+        model=provider["model_id"],
+        input=prompt,
+        output=answer,
+        usage_details=data.get("usage"),
+    )
+    return answer
 
 
 def _is_tool_use_failed(response):
@@ -135,6 +154,7 @@ def call_llm(prompt, preferred_provider=DEFAULT_LLM_PROVIDER, temperature=DEFAUL
         return _call_provider(other_provider, prompt, temperature), other_provider
 
 
+@observe(name="fixed-pipeline-ask")
 def answer_question(question, top_k=DEFAULT_TOP_K, model=None, client=None,
                      provider=DEFAULT_LLM_PROVIDER, temperature=DEFAULT_TEMPERATURE,
                      return_trace_id=False):
@@ -151,6 +171,7 @@ def answer_question(question, top_k=DEFAULT_TOP_K, model=None, client=None,
         best_distance = chunks[0]["distance"] if chunks else float("inf")
         trace.stage("confidence_gate", best_distance=best_distance, threshold=DISTANCE_THRESHOLD, passed=best_distance <= DISTANCE_THRESHOLD)
         if best_distance > DISTANCE_THRESHOLD:
+            get_langfuse_client().update_current_span(metadata={"refused": True, "best_distance": best_distance})
             result = {
                 "answer": f'I couldn\'t find relevant information to answer "{question}". '
                            f"Try asking something related to the topics covered in the "

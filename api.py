@@ -16,7 +16,16 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 from pydantic import BaseModel, Field
 
-from config import CORS_ALLOWED_ORIGINS, DATA_DIR, DEFAULT_LLM_PROVIDER, DEFAULT_TEMPERATURE, GEMINI_API_KEY, GROQ_API_KEY
+from config import (
+    CORS_ALLOWED_ORIGINS,
+    DATA_DIR,
+    DEFAULT_LLM_PROVIDER,
+    DEFAULT_TEMPERATURE,
+    GEMINI_API_KEY,
+    GROQ_API_KEY,
+    LANGFUSE_PUBLIC_KEY,
+    LANGFUSE_SECRET_KEY,
+)
 from generate import answer_question
 from ingestion import LOADERS, build_database, get_client, get_embedding_model, grouped_sources
 from ingestion import count as count_chunks
@@ -139,6 +148,7 @@ def health_check():
 
     checks["gemini_key"] = "present" if GEMINI_API_KEY else "missing"
     checks["groq_key"] = "present" if GROQ_API_KEY else "missing"
+    checks["langfuse"] = "present" if (LANGFUSE_PUBLIC_KEY and LANGFUSE_SECRET_KEY) else "missing"
     checks["data_dir"] = "ok" if os.path.isdir(DATA_DIR) else f"error: '{DATA_DIR}' not found"
 
     overall = "ok" if all(
