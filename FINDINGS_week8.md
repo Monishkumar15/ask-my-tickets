@@ -195,6 +195,60 @@ with the process described in some internal documents that suggests
 emailing your password to support, as you should never share your password
 with anyone."*
 
+## 5b. Direct prompt injection (added later, both pipelines)
+
+Section 5 only tested **indirect** injection (a hidden instruction planted
+in a *retrieved document*). **Direct** injection -- the attacker IS the end
+user, typing the malicious instruction straight into their own question --
+had never been built or tested, a real gap confirmed by grepping the whole
+repo for "direct injection" (zero matches) before this section was written.
+
+**A real architectural asymmetry was found while scoping this**: `agent.py`'s
+prompt already had a trust-boundary rule (Section 6, defense #1) -- but
+`generate.py::build_prompt()`, the prompt the live web UI's `/ask` route
+actually uses, had **no trust-boundary rule at all**. The one path a real
+user can actually reach was the less-defended of the two.
+
+**Two new test files**, mirroring Section 5's rigor but needing no isolated
+corpus (a direct attack lives in the question text, no document to poison):
+`evals/direct_injection_test_agent.py` (5 attacks against `agent.py`) and
+`evals/direct_injection_test_fixed_pipeline.py` (4 attacks against
+`generate.py`).
+
+**Result, measured honestly, not assumed**: all 9 auto-checked attacks were
+BLOCKED on first measurement, across both pipelines -- blunt instruction
+override, system-prompt extraction, fabricated-source-by-direct-instruction,
+trust-boundary delimiter impersonation, and credential social-engineering
+(the 2 manual-review cases also came back clean on inspection). This
+contradicts the expectation written into the plan before testing (that the
+fixed pipeline's missing trust-boundary rule would let at least one attack
+through) -- the underlying model resisted all 9 shapes even without an
+explicit defense. That expectation being wrong, once actually measured, is
+itself the honest result, not something to paper over.
+
+**The trust-boundary rule was still added to `build_prompt()`** (matching
+`agent.py`'s existing one, plus an added line addressing the fake-section-
+label attack shape specifically) -- not reactively, since nothing failed,
+but because relying solely on the underlying model's inherent resistance
+(verified here, but never guaranteed) is weaker than an explicit, code-
+present instruction boundary. Re-ran the fixed-pipeline test after adding
+it: still 3/3 blocked (no regression). Also re-ran `run_eval.py`'s full
+20-case suite: 18/20 (2 keyword-phrasing misses, both confirmed unrelated
+to this change by direct investigation -- one is the same LLM-phrasing-
+variance flakiness documented since Week 4, the other is a pre-existing
+retrieval fragility for one specific question's exact phrasing, confirmed
+by checking `retrieve()` directly: the needed chunk doesn't appear even in
+the top 8 results, and `retrieve()` has no dependency on `build_prompt()`'s
+text at all).
+
+**What this round did NOT cover, named honestly**: only 9 total attack
+shapes were tried, all with Gemini as the answering provider (no attempt
+against Groq specifically for the direct shapes, unlike Section 5's
+indirect tests which checked both). A differently-phrased or more
+sophisticated direct attack was not tried. "All attacks blocked today" is
+evidence the current defenses hold against *these* 9 shapes, specifically
+measured -- not a claim that direct injection is now a solved problem.
+
 ## 7. Cost per task
 
 `trajectory_eval.py` reports mean and p99 seconds/LLM-calls per run (n=20,
@@ -205,6 +259,12 @@ question.
 
 ## 8. Known limitations — what could still get through
 
+- **Direct prompt injection was only tested with 9 specific attack shapes**
+  (Section 5b), all against Gemini, all blocked on first measurement. This
+  is evidence those 9 shapes are handled, not proof the broader category is
+  solved -- a differently-phrased direct attack, a multi-turn escalation
+  across several questions, or an attack against Groq specifically was not
+  tried.
 - **The credential-request rule is narrowly scoped.** It closes the
   specific "email me your password" attack shape found this week. A
   misinformation attack about a different fact (e.g. a fabricated refund

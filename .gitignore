@@ -4,6 +4,7 @@ chroma_db/
 __pycache__/
 *.pyc
 traces/
+sessions/
 
 # ui-react (Vite/React frontend)
 ui-react/node_modules/
