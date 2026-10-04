@@ -40,7 +40,8 @@ from config import (
 )
 from langfuse import observe
 
-from generate import call_llm
+import injection
+from generate import PROVIDERS, call_llm
 from mcp_client import MCPToolError, MCPToolSession
 from tracing import Trace
 
@@ -221,7 +222,12 @@ def _validate_sources(declared_sources, all_sources_seen):
     return validated or list(all_sources_seen)
 
 
-def _summarize_chunks(chunks):
+def _is_refusal(answer):
+    """True when the agent's final answer is the app's own "I don't know"."""
+    return (answer or "").strip().lower().startswith("i don't know")
+
+
+def _summarize_chunks(chunks, detections_out=None):
     """What the model actually sees back after a search -- not the raw
     chunk dicts, a readable summary, since this text goes straight into
     the next prompt as the "observation".
@@ -239,11 +245,21 @@ def _summarize_chunks(chunks):
     """
     if not chunks:
         return "No relevant results found."
-    lines = [f"- [{c['source']}] {c['text'][:500]}" for c in chunks]
+    lines = []
+    for c in chunks:
+        # Neutralize the BODY only, after the 500-char cut and before it is
+        # joined to the "[source]" header: once joined, a forged label inside
+        # a body is indistinguishable from our own header. Detections are
+        # appended to detections_out (if given) so the caller can record them
+        # in the trace.
+        cleaned, detections = injection.neutralize(c["text"][:500])
+        if detections_out is not None:
+            detections_out.extend(detections)
+        lines.append(f"- [{c['source']}] {cleaned}")
     return "\n".join(lines)
 
 
-def _format_tool_result(items):
+def _format_tool_result(items, detections_out=None):
     """
     Week 9: an MCP tool's result can be any shape, since a second tool
     (list_ticket_sources) doesn't return ticket chunks at all. Chunk-shaped
@@ -254,8 +270,14 @@ def _format_tool_result(items):
     if not items:
         return "No results found."
     if all(isinstance(item, dict) and "source" in item and "text" in item for item in items):
-        return _summarize_chunks(items)
-    return "\n".join(", ".join(f"{k}: {v}" for k, v in item.items()) for item in items)
+        return _summarize_chunks(items, detections_out)
+    rendered = "\n".join(", ".join(f"{k}: {v}" for k, v in item.items()) for item in items)
+    # Non-chunk results (e.g. list_ticket_sources' text previews) carry
+    # document text too, so they get the same neutralization.
+    cleaned, detections = injection.neutralize(rendered)
+    if detections_out is not None:
+        detections_out.extend(detections)
+    return cleaned
 
 
 def run_agent(question, top_k=DEFAULT_TOP_K, model=None, client=None,
@@ -302,12 +324,18 @@ def _unwrap_single_exception(exc):
 @observe(name="agent-run", as_type="agent")
 async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_PROVIDER,
                             temperature=DEFAULT_TEMPERATURE, mcp_session=None):
+    # Week 8 follow-up: the question is NOT neutralized (a question is supposed to
+    # instruct, and rewriting a user's words would change what they asked). It is
+    # scanned and the result recorded, so a direct-injection attempt is visible in
+    # the trace instead of silent.
+    question_detections = injection.scan(question) if injection.enabled() else []
     trace = Trace(question, {
         "mode": "agent",
         "max_steps": MAX_STEPS,
         "max_seconds": MAX_SECONDS,
         "preferred_provider": provider,
         "temperature": temperature,
+        "question_injection": injection.summarize(question_detections),
     })
     started = time.monotonic()
     history = []
@@ -328,6 +356,10 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
             prompt = _build_agent_prompt(question, history, steps_left=MAX_STEPS - step_num + 1, tools=tools)
             raw, provider_used = call_llm(prompt, preferred_provider=provider, temperature=temperature)
             llm_calls += 1
+            # Which provider/model actually answered this step. call_llm can fall
+            # back to the other provider, so the preferred one is not enough to
+            # attribute a result to a model.
+            llm_meta = {"provider": provider_used, "model": PROVIDERS[provider_used]["model_id"]}
             action = _parse_action(raw)
 
             # Enforced in code, not just requested in the prompt -- a fabricated
@@ -340,7 +372,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
             # observation forcing a search first, the same self-correction
             # pattern _parse_action already uses for malformed JSON.
             if action["action"] in ("finish", "escalate") and not history:
-                trace.stage("agent_step", step=step_num, thought=action["thought"],
+                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
                             action=action["action"], blocked="no_search_yet")
                 history.append({
                     "thought": action["thought"], "action": action["action"],
@@ -354,7 +386,12 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
             if action["action"] == "finish":
                 answer = action["action_input"].get("answer", "")
                 sources = _validate_sources(action["action_input"].get("sources"), all_sources_seen)
-                trace.stage("agent_step", step=step_num, thought=action["thought"],
+                if _is_refusal(answer):
+                    # An "I don't know" has no supporting source. The fixed pipeline
+                    # already drops sources on a refusal; listing one here would
+                    # read as if the document backed the refusal.
+                    sources = []
+                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
                             action="finish", action_input=action["action_input"])
                 result = {
                     "answer": answer, "sources": list(dict.fromkeys(sources)),
@@ -370,9 +407,10 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                 # called here with zero further edits to this file -- this
                 # is what makes "add a second tool without touching the
                 # agent" concretely true (Week 9), not just a design claim.
+                detections = []
                 try:
                     items = await mcp.call_tool(action["action"], action["action_input"])
-                    observation = _format_tool_result(items)
+                    observation = _format_tool_result(items, detections)
                 except MCPToolError as exc:
                     items = []
                     observation = str(exc)
@@ -389,9 +427,10 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                 # same lesson Week 6 already learned for judge.py: a judge given
                 # only the outcome, not the evidence, can't tell a sound
                 # conclusion from a misread one.
-                trace.stage("agent_step", step=step_num, thought=action["thought"],
+                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
                             action=action["action"], action_input=action["action_input"],
-                            result_count=len(items), observation=observation, via="mcp")
+                            result_count=len(items), observation=observation, via="mcp",
+                            injection=injection.summarize(detections) if detections else None)
                 history.append({
                     "thought": action["thought"], "action": action["action"],
                     "action_input": action["action_input"], "observation": observation,
@@ -411,7 +450,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                 # next step, just not one the agent can carry out itself.
                 reason = action["action_input"].get("reason", "")
                 sources = _validate_sources(action["action_input"].get("sources"), all_sources_seen)
-                trace.stage("agent_step", step=step_num, thought=action["thought"],
+                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
                             action="escalate", action_input=action["action_input"])
                 result = {
                     "answer": reason, "sources": list(dict.fromkeys(sources)),
@@ -427,7 +466,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                 # observation, not a crash -- gives the model a chance to
                 # correct itself on the next step instead of the whole run
                 # dying over one bad response.
-                trace.stage("agent_step", step=step_num, thought=action["thought"],
+                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
                             action=action["action"], error="unrecognized_action")
                 history.append({
                     "thought": action["thought"], "action": action["action"],

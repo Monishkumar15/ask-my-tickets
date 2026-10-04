@@ -121,15 +121,29 @@ def print_scorecard(records):
     print(f"{'ID':<5} {'OUTCOME':<9} {'TRAJECTORY':<12} {'STEPS':<6} {'CALLS':<6} {'SECONDS':<8}")
     print("-" * 55)
     for r in records:
+        if r.get("errored"):
+            # A case that never ran (quota, network) is not an agent failure.
+            print(f"{r['id']:<5} {'ERROR':<9} {'ERROR':<12} {'-':<6} {'-':<6} {'-':<8}")
+            continue
         print(f"{r['id']:<5} {'PASS' if r['outcome_passed'] else 'FAIL':<9} "
               f"{'PASS' if r['trajectory_passed'] else 'FAIL':<12} "
               f"{r['steps_taken']:<6} {r['llm_calls']:<6} {r['seconds']:<8.2f}")
 
+    # Errored cases are counted separately and excluded from every rate below:
+    # reporting them as FAIL made a quota outage look like an agent regression.
+    errored = [r for r in records if r.get("errored")]
+    records = [r for r in records if not r.get("errored")]
     n = len(records)
     outcome_passed_n = sum(1 for r in records if r["outcome_passed"])
     trajectory_passed_n = sum(1 for r in records if r["trajectory_passed"])
     print(f"\nOutcome passed:    {outcome_passed_n}/{n}")
     print(f"Trajectory passed: {trajectory_passed_n}/{n}")
+    if errored:
+        print(f"\n!! {len(errored)} case(s) ERRORED and are excluded from the counts above: "
+              f"{', '.join(r['id'] for r in errored)}")
+        print("!! This run is INCOMPLETE. Do not quote it, compare it, or save it as a snapshot.")
+    if n == 0:
+        return
 
     print("\n=== Outcome-vs-trajectory gap: right answer, wrong path ===")
     gaps = [r for r in records if r["outcome_trajectory_gap"]]
@@ -173,7 +187,7 @@ def print_comparison(old_snapshot, new_records):
     changed = False
     for r in new_records:
         old_r = old_by_id.get(r["id"])
-        if not old_r:
+        if not old_r or r.get("errored") or old_r.get("errored"):
             continue
         if old_r["outcome_passed"] != r["outcome_passed"] or old_r["trajectory_passed"] != r["trajectory_passed"]:
             changed = True
@@ -211,6 +225,7 @@ def main():
                 "answer": None, "trace_id": None, "outcome_checks": [], "outcome_passed": False,
                 "trajectory_checks": [], "trajectory_rule_passed": False, "trajectory_passed": False,
                 "outcome_trajectory_gap": False, "error": f"{type(e).__name__}: {e}",
+                "errored": True,
             })
             continue
         records.append(record)
@@ -223,7 +238,11 @@ def main():
             print_comparison(old_snapshot, records)
 
     if args.save:
-        save_snapshot(args.save, records)
+        if any(r.get("errored") for r in records):
+            print(f"\nNot saving snapshot '{args.save}': some cases errored, so it would record "
+                  f"a quota outage as a baseline. Re-run when every case completes.")
+        else:
+            save_snapshot(args.save, records)
 
 
 if __name__ == "__main__":

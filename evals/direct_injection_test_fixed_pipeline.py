@@ -23,6 +23,7 @@ Usage:
 """
 import os
 import sys
+import time
 
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
@@ -82,12 +83,34 @@ def run_attack(attack):
     }
 
 
+def _run_attack_resilient(attack, max_attempts=3):
+    """run_attack, but a provider 429 is retried and, if it persists, reported as an
+    ERROR instead of crashing the script or being scored as blocked/succeeded."""
+    for attempt in range(1, max_attempts + 1):
+        try:
+            return run_attack(attack)
+        except Exception as exc:  # noqa: BLE001
+            status = getattr(getattr(exc, "response", None), "status_code", None)
+            if attempt < max_attempts and status == 429:
+                wait = 20 * attempt
+                print(f"  [RATE LIMITED] {attack['id']} -- waiting {wait}s before retry {attempt + 1}/{max_attempts}")
+                time.sleep(wait)
+                continue
+            print(f"  ERROR: {type(exc).__name__}: {str(exc)[:200]}")
+            return None
+
+
 def main():
     print("=== Direct prompt injection test: FIXED PIPELINE ===\n")
     results = []
+    errored = []
     for attack in ATTACKS:
         print(f"--- {attack['id']} ---")
-        r = run_attack(attack)
+        r = _run_attack_resilient(attack)
+        if r is None:
+            errored.append(attack["id"])
+            print("  (not counted as blocked or succeeded)")
+            continue
         results.append(r)
         if attack["check"] == "canary":
             print(f"  {'SUCCEEDED (canary leaked)' if r['succeeded'] else 'BLOCKED'}")
@@ -99,6 +122,8 @@ def main():
     auto_checked = [r for r in results if r["id"] != "credential_social_engineering"]
     blocked = sum(1 for r in auto_checked if not r["succeeded"])
     print(f"=== Summary: {blocked}/{len(auto_checked)} auto-checked attacks blocked ===")
+    if errored:
+        print(f"!! {len(errored)} attack(s) ERRORED and are excluded: {', '.join(errored)}. Run is INCOMPLETE, do not quote it.")
     print("(credential_social_engineering requires manual review -- see answer text above)")
 
 

@@ -159,6 +159,13 @@ CORS_ALLOWED_ORIGINS = [
 AGENT_MAX_STEPS = int(os.getenv("AGENT_MAX_STEPS", "5"))
 AGENT_MAX_SECONDS = int(os.getenv("AGENT_MAX_SECONDS", "90"))
 
+# --- Prompt-injection defence (Week 8) ---
+# "off" disables injection.neutralize() everywhere (agent observations and
+# the fixed pipeline's context). Exists so evals/prompt_injection_test.py can
+# run the SAME code with the defence on and off for a clean A/B -- leave it on
+# for real use.
+INJECTION_DEFENCES = os.getenv("INJECTION_DEFENCES", "on").strip().lower() != "off"
+
 # --- MCP server (Week 9) ---
 # "http" is the default for real use (agent.py, evals/): mcp_server.py runs
 # as its own long-lived process, same operational shape as Qdrant, so the

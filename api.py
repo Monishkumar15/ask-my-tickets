@@ -27,7 +27,8 @@ from config import (
     LANGFUSE_SECRET_KEY,
 )
 from generate import answer_question
-from ingestion import LOADERS, build_database, get_client, get_embedding_model, grouped_sources
+import injection
+from ingestion import LOADERS, build_database, get_client, get_embedding_model, grouped_sources, load_document_text
 from ingestion import count as count_chunks
 from retrieval import retrieve
 from sessions import add_message, create_session, delete_session, get_session, list_sessions
@@ -118,9 +119,17 @@ async def upload_document(file: UploadFile = File(...)):
     # smarter incremental-ingest approach instead of a full rebuild per upload.
     client = build_database()
 
+    # Week 8 follow-up: warn (never block) when the uploaded file contains text that
+    # looks like an instruction to an AI. It is still ingested; retrieval-time
+    # neutralization (injection.py) is what protects the model. This only tells the
+    # uploader that the file will trigger it.
+    units = load_document_text(dest_path) or []
+    injection_warning = injection.report_document("\n".join(text for _, text in units))
+
     return {
         "message": f"Uploaded and ingested '{safe_name}'.",
         "total_chunks_in_index": count_chunks(client),
+        "injection_warning": injection_warning,
     }
 
 

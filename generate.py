@@ -23,6 +23,7 @@ from config import (
     GROQ_API_URL,
     GROQ_MODEL_ID,
 )
+import injection
 from retrieval import retrieve
 from tracing import Trace
 
@@ -42,8 +43,11 @@ def build_prompt(question, chunks):
         page = c.get("page")
         return f"{c['source']}, page {page}" if page else c["source"]
 
+    # Week 8: neutralize each chunk BODY (the header is added after, so a
+    # forged "[Source: ...]" line inside a body cannot pass as ours) and strip
+    # any copy of the trust-boundary markers a chunk tries to smuggle in.
     context = "\n\n".join(
-        f"[Source: {_label(c)}]\n{c['text']}" for c in chunks
+        f"[Source: {_label(c)}]\n{injection.neutralize(c['text'])[0]}" for c in chunks
     )
     return f"""You are a support assistant. Answer the question using ONLY the
 context below. Do not use any outside knowledge.
@@ -195,11 +199,14 @@ def call_llm(prompt, preferred_provider=DEFAULT_LLM_PROVIDER, temperature=DEFAUL
 def answer_question(question, top_k=DEFAULT_TOP_K, model=None, client=None,
                      provider=DEFAULT_LLM_PROVIDER, temperature=DEFAULT_TEMPERATURE,
                      return_trace_id=False):
+    # Scanned and recorded, not rewritten: see agent._run_agent_async.
+    question_detections = injection.scan(question) if injection.enabled() else []
     trace = Trace(question, {
         "top_k": top_k,
         "distance_threshold": DISTANCE_THRESHOLD,
         "preferred_provider": provider,
         "temperature": temperature,
+        "question_injection": injection.summarize(question_detections),
     })
     try:
         chunks = retrieve(question, top_k=top_k, model=model, client=client)
@@ -220,10 +227,13 @@ def answer_question(question, top_k=DEFAULT_TOP_K, model=None, client=None,
             result["trace_id"] = trace.finish(answer=result["answer"], outcome="refusal")
             return result
 
+        flagged = [d for c in chunks for d in injection.scan(c["text"])] if injection.enabled() else []
+        trace.stage("injection_scan", enabled=injection.enabled(), **injection.summarize(flagged))
         prompt = build_prompt(question, chunks)
         trace.stage("prompt", source_count=len({chunk["source"] for chunk in chunks}))
         answer_text, provider_used = call_llm(prompt, preferred_provider=provider, temperature=temperature)
-        trace.stage("generation", requested_provider=provider, provider_used=provider_used, completed=True)
+        trace.stage("generation", requested_provider=provider, provider_used=provider_used,
+                    model=PROVIDERS[provider_used]["model_id"], completed=True)
 
         # List every distinct source that contributed context, closest match
         # first -- a question spanning multiple topics may pull chunks from
