@@ -17,6 +17,7 @@ Consolidated from retrieve.py, bm25_search.py, hybrid.py, and metrics.py
 
 import os
 import re
+import threading
 
 os.environ["HF_HUB_DISABLE_SYMLINKS_WARNING"] = "1"
 
@@ -266,12 +267,25 @@ def hybrid_retrieve(question, chunks, bm25_index, model=None, client=None, top_k
 # ===========================================================================
 
 _reranker_cache = None
+_reranker_lock = threading.Lock()
 
 
 def get_reranker():
+    """
+    Week 10: multi_agent.py's two specialists can call retrieve() from two
+    OS threads at once (asyncio.to_thread) -- the first genuinely
+    concurrent caller this lazy cache has ever had. Without a lock, two
+    threads racing on a cold cache would both see _reranker_cache is None
+    and both construct a CrossEncoder before one wins the assignment --
+    not corruption (GIL protects the attribute write itself), just
+    wasted duplicate model loads. The lock makes the second thread wait
+    for the first's result instead.
+    """
     global _reranker_cache
     if _reranker_cache is None:
-        _reranker_cache = CrossEncoder(RERANKER_MODEL_NAME)
+        with _reranker_lock:
+            if _reranker_cache is None:
+                _reranker_cache = CrossEncoder(RERANKER_MODEL_NAME)
     return _reranker_cache
 
 
@@ -308,13 +322,19 @@ def rerank(question, candidates, top_k=DEFAULT_TOP_K, reranker=None):
 # ===========================================================================
 
 _bm25_cache = None  # (bm25_index, chunks), built once per process and reused
+_bm25_lock = threading.Lock()
 
 
 def _get_bm25():
+    """Same concurrent-first-caller reasoning as get_reranker() above --
+    locked so two parallel specialist threads can't both pay the cost of
+    loading and indexing every document at once."""
     global _bm25_cache
     if _bm25_cache is None:
-        chunks = load_and_chunk_all()
-        _bm25_cache = build_bm25_index(chunks)
+        with _bm25_lock:
+            if _bm25_cache is None:
+                chunks = load_and_chunk_all()
+                _bm25_cache = build_bm25_index(chunks)
     return _bm25_cache
 
 

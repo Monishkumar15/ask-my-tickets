@@ -196,3 +196,22 @@ MCP_SHARED_SECRET = os.getenv("MCP_SHARED_SECRET", "")
 LANGFUSE_PUBLIC_KEY = os.getenv("LANGFUSE_PUBLIC_KEY", "")
 LANGFUSE_SECRET_KEY = os.getenv("LANGFUSE_SECRET_KEY", "")
 LANGFUSE_HOST = os.getenv("LANGFUSE_HOST", "https://us.cloud.langfuse.com")
+
+# --- Cost rates for the multi-agent race (Week 10) ---
+# Verified via direct web lookup against each provider's own published
+# pricing for the EXACT models this app has configured (GEMINI_MODEL_ID /
+# GROQ_MODEL_ID), not recalled from memory or assumed flat:
+#   Gemini 3.1 Flash Lite (GA):  $0.25 / 1M input tokens, $1.50 / 1M output
+#   Groq gpt-oss-120b:           $0.15 / 1M input tokens, $0.60 / 1M output
+# Split input/output on purpose, not a single blended rate -- most
+# providers price completion tokens several times higher than prompt
+# tokens, and a multi-agent team's hidden cost is specifically INFLATED
+# PROMPT tokens (every hand-off re-sends context) -- a flat rate would
+# hide or distort exactly the penalty this week's race exists to measure.
+# This project's keys are on each provider's free tier, so the REAL cost
+# today is $0 -- these rates are a standard-list-price comparison proxy,
+# documented as such in FINDINGS_week10.md, not a claim of actual spend.
+GEMINI_INPUT_COST_PER_1K = float(os.getenv("GEMINI_INPUT_COST_PER_1K", "0.00025"))
+GEMINI_OUTPUT_COST_PER_1K = float(os.getenv("GEMINI_OUTPUT_COST_PER_1K", "0.0015"))
+GROQ_INPUT_COST_PER_1K = float(os.getenv("GROQ_INPUT_COST_PER_1K", "0.00015"))
+GROQ_OUTPUT_COST_PER_1K = float(os.getenv("GROQ_OUTPUT_COST_PER_1K", "0.0006"))

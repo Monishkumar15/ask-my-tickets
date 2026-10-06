@@ -21,6 +21,8 @@ import sys
 import time
 from datetime import datetime, timezone
 
+import requests
+
 sys.stdout.reconfigure(encoding="utf-8", errors="replace")
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
@@ -33,6 +35,29 @@ from ingestion import get_client, get_embedding_model
 from retrieval import retrieve
 
 RESULTS_FILE = os.path.join(os.path.dirname(__file__), "race_results.json")
+
+
+def _with_rate_limit_retry(fn, *args, max_attempts=3, **kwargs):
+    """
+    Found live: run_fixed() had NO exception handling at all, so a 429 on
+    EITHER provider (even a momentary one that would have cleared itself
+    within seconds) crashed the entire race, discarding every result
+    already collected. Same lesson trajectory_eval.py's own
+    _run_with_rate_limit_retry() already learned for that script -- ported
+    here, since this script never got the same fix. A 429 here is
+    throttling, not a real failure -- worth a short backoff and retry
+    before letting it crash the whole run.
+    """
+    for attempt in range(max_attempts):
+        try:
+            return fn(*args, **kwargs)
+        except requests.exceptions.HTTPError as e:
+            is_rate_limited = e.response is not None and e.response.status_code == 429
+            if not is_rate_limited or attempt == max_attempts - 1:
+                raise
+            wait = 10 * (attempt + 1)
+            print(f"  [RATE LIMITED] waiting {wait}s before retry {attempt + 2}/{max_attempts}")
+            time.sleep(wait)
 
 
 def run_fixed(case, model, client):
@@ -56,6 +81,18 @@ def run_agentic(case, model, client):
     t0 = time.perf_counter()
     try:
         result = run_agent(case["question"], top_k=DEFAULT_TOP_K, model=model, client=client)
+    except requests.exceptions.HTTPError as e:
+        # A 429 specifically is let through uncaught (not converted to a
+        # failure record here) so _with_rate_limit_retry() -- wrapping this
+        # function's caller -- can actually retry it. Swallowing it here
+        # the way every OTHER exception is below would silently record a
+        # real pass as a permanent FAIL instead of giving it the same
+        # retry chance run_fixed() now gets.
+        if e.response is not None and e.response.status_code == 429:
+            raise
+        elapsed = time.perf_counter() - t0
+        return {"seconds": elapsed, "llm_calls": None, "passed": False,
+                "assertions": [], "answer": None, "error": f"{type(e).__name__}: {e}"}
     except Exception as e:
         # A single case's LLM call failing must not crash the whole race --
         # same lesson learned (and fixed) in run_eval.py earlier this week.
@@ -86,8 +123,20 @@ def main():
     print(f"{'ID':<5} {'FIXED':<22} {'AGENT':<32}")
     print("-" * 65)
     for case in all_cases:
-        fixed = run_fixed(case, model, client)
-        agent = run_agentic(case, model, client)
+        try:
+            fixed = _with_rate_limit_retry(run_fixed, case, model, client)
+        except requests.exceptions.HTTPError as e:
+            # Both providers were still rate-limited after every retry --
+            # same non-crashing treatment run_agentic() already gives a
+            # failure, so one case's exhausted quota doesn't discard every
+            # result already collected.
+            fixed = {"seconds": 0.0, "llm_calls": None, "passed": False,
+                      "assertions": [], "answer": None, "error": f"{type(e).__name__}: {e}"}
+        try:
+            agent = _with_rate_limit_retry(run_agentic, case, model, client)
+        except requests.exceptions.HTTPError as e:
+            agent = {"seconds": 0.0, "llm_calls": None, "passed": False,
+                      "assertions": [], "answer": None, "error": f"{type(e).__name__}: {e}"}
 
         fixed_label = f"{'PASS' if fixed['passed'] else 'FAIL'} {fixed['seconds']:.1f}s/1call"
         agent_label = (f"{'PASS' if agent['passed'] else 'FAIL'} {agent['seconds']:.1f}s/"
@@ -104,7 +153,7 @@ def main():
     n = len(records)
     fixed_total_time = sum(r["fixed"]["seconds"] for r in records)
     agent_total_time = sum(r["agent"]["seconds"] for r in records)
-    fixed_total_calls = sum(r["fixed"]["llm_calls"] for r in records)
+    fixed_total_calls = sum(r["fixed"].get("llm_calls") or 0 for r in records)
     agent_total_calls = sum(r["agent"].get("llm_calls") or 0 for r in records)
     fixed_passed = sum(1 for r in records if r["fixed"]["passed"])
     agent_passed = sum(1 for r in records if r["agent"]["passed"])

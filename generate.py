@@ -108,8 +108,18 @@ class MalformedResponseError(Exception):
 
 
 @observe(as_type="generation", name="llm-call")
-def _call_provider(provider_name, prompt, temperature=DEFAULT_TEMPERATURE):
-    """POST to one provider's OpenAI-compatible chat-completions endpoint."""
+def _call_provider(provider_name, prompt, temperature=DEFAULT_TEMPERATURE, usage_out=None):
+    """POST to one provider's OpenAI-compatible chat-completions endpoint.
+
+    usage_out: Week 10 -- an optional dict the caller passes in to receive
+    this call's real token usage (prompt_tokens/completion_tokens/
+    total_tokens, confirmed present in this app's own real Gemini
+    response) without changing this function's return value, so every
+    existing caller stays unaffected. Used by multi_agent.py's race
+    harness to measure the real cost of a multi-agent team vs. the single
+    agent -- a flat/combined count would hide exactly the "re-sent
+    context inflates prompt tokens at every handoff" cost this is for.
+    """
     provider = PROVIDERS[provider_name]
     response = requests.post(
         provider["api_url"],
@@ -136,6 +146,8 @@ def _call_provider(provider_name, prompt, temperature=DEFAULT_TEMPERATURE):
             f"{data.get('choices', [{}])[0].get('finish_reason')!r})"
         )
     answer = message["content"]
+    if usage_out is not None:
+        usage_out.update(data.get("usage") or {})
     get_langfuse_client().update_current_generation(
         model=provider["model_id"],
         input=prompt,
@@ -167,32 +179,41 @@ def _is_tool_use_failed(response):
         return False
 
 
-def call_llm(prompt, preferred_provider=DEFAULT_LLM_PROVIDER, temperature=DEFAULT_TEMPERATURE):
+def call_llm(prompt, preferred_provider=DEFAULT_LLM_PROVIDER, temperature=DEFAULT_TEMPERATURE, usage_out=None):
     """
     Try preferred_provider first. Falls back to the other provider only for
-    known-recoverable failures: a 429 (quota/rate-limit), a model
-    serving-side tool-call misfire (_is_tool_use_failed), or a response
-    missing message content (MalformedResponseError) -- all three are
-    properties of the specific model/provider handling this one request,
-    not the request itself, so the other provider is expected to succeed
-    where this one didn't. Any other kind of error (bad request, network
-    issue, etc.) surfaces immediately instead of silently retrying
+    known-recoverable failures: a 429 (quota/rate-limit), any 5xx (the
+    provider's own server having a problem -- found live during Week 10
+    testing: Gemini returned a plain 503 Service Unavailable, which this
+    fallback did not yet cover and crashed straight through uncaught), a
+    model serving-side tool-call misfire (_is_tool_use_failed), or a
+    response missing message content (MalformedResponseError) -- all of
+    these are properties of the specific model/provider handling this one
+    request, not the request itself, so the other provider is expected to
+    succeed where this one didn't. Any other kind of error (bad request,
+    network issue, etc.) surfaces immediately instead of silently retrying
     elsewhere -- this project treats "retry automatically" as something
     each failure mode has to individually earn, not a default.
+
+    usage_out: Week 10 -- optional, passed straight through to
+    _call_provider() (see its own docstring). If a fallback happens,
+    usage_out ends up holding the SUCCESSFUL call's usage, not the failed
+    attempt's -- the failed one has no usage worth recording.
 
     Returns (answer_text, provider_that_actually_answered).
     """
     other_provider = "groq" if preferred_provider == "gemini" else "gemini"
 
     try:
-        return _call_provider(preferred_provider, prompt, temperature), preferred_provider
+        return _call_provider(preferred_provider, prompt, temperature, usage_out=usage_out), preferred_provider
     except MalformedResponseError:
-        return _call_provider(other_provider, prompt, temperature), other_provider
+        return _call_provider(other_provider, prompt, temperature, usage_out=usage_out), other_provider
     except requests.exceptions.HTTPError as e:
         is_quota_error = e.response is not None and e.response.status_code == 429
-        if not (is_quota_error or _is_tool_use_failed(e.response)):
+        is_server_error = e.response is not None and 500 <= e.response.status_code < 600
+        if not (is_quota_error or is_server_error or _is_tool_use_failed(e.response)):
             raise
-        return _call_provider(other_provider, prompt, temperature), other_provider
+        return _call_provider(other_provider, prompt, temperature, usage_out=usage_out), other_provider
 
 
 @observe(name="fixed-pipeline-ask")

@@ -1,0 +1,1041 @@
+{
+  "run_at": "2026-10-06T02:39:13.694611+00:00",
+  "records": [
+    {
+      "id": "q1",
+      "question": "why did my account get locked when I typed my password wrong a few times?",
+      "problem_type": "other",
+      "single": {
+        "seconds": 4.476922299945727,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_001_password_lockout.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['15 minutes']"
+          }
+        ],
+        "answer": "Your account gets locked after 3 failed login attempts for 15 minutes as a security measure. During this lockout window, password reset emails are not sent by design. Once the 15-minute lockout period ends, you can use the \"Forgot Password\" link again, and it will work normally.",
+        "prompt_tokens": 2584,
+        "completion_tokens": 195,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 10.357233999995515,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_001_password_lockout.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['15 minutes']"
+          }
+        ],
+        "answer": "Your account locks for 15 minutes after 3 failed login attempts as expected behavior for security reasons. During this lockout window, no password reset email is sent by design. Once the 15-minute period ends, you can use the \"Forgot Password\" link again, and it will work normally. If you still cannot log in after waiting 15 minutes, please let us know so we can assist you further.",
+        "prompt_tokens": 858,
+        "completion_tokens": 124,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "q2",
+      "question": "my order still hasn't shown up, it's way past when it should have",
+      "problem_type": "other",
+      "single": {
+        "seconds": 3.727740200003609,
+        "llm_calls": 2,
+        "passed": false,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_003_shipping_delay.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": false,
+            "reason": "missing keyword(s): ['7 business days']"
+          }
+        ],
+        "answer": "I'm sorry to hear your order hasn't arrived yet! Since it is past the estimated delivery window, I am checking the carrier tracking link for updates. If the tracking shows no movement in the last 3 days, we will file a 'lost in transit' claim with the carrier and provide you with your choice of either a full reshipment at no cost or a full refund.",
+        "prompt_tokens": 2613,
+        "completion_tokens": 229,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.51547470013611,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_003_shipping_delay.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['7 business days']"
+          }
+        ],
+        "answer": "Your order was estimated to arrive in 5 business days, but it has now been 9 business days. Because it is a domestic order delayed more than 7 business days past the estimated delivery date, we are currently checking the carrier tracking link for updates. If the tracking shows no movement in the last 3 days, we will file a \"lost in transit\" claim with the carrier and offer you either a full reshipment at no cost or a full refund, whichever you prefer.",
+        "prompt_tokens": 873,
+        "completion_tokens": 135,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "q3",
+      "question": "3 attempts and now I'm locked out, is that normal?",
+      "problem_type": "other",
+      "single": {
+        "seconds": 6.227362000150606,
+        "llm_calls": 3,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_001_password_lockout.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['15 minutes']"
+          }
+        ],
+        "answer": "Yes, that is completely normal. After 3 failed login attempts, your account is locked for 15 minutes for security reasons. Please wait 15 minutes, and you will be able to log in or use the \"Forgot Password\" link normally.",
+        "prompt_tokens": 3916,
+        "completion_tokens": 285,
+        "steps_taken": 3,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.5359563000965863,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_001_password_lockout.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['15 minutes']"
+          }
+        ],
+        "answer": "After 3 failed login attempts, your account locks for 15 minutes for security reasons, and no password reset email is sent during this window by design. \n\nTo regain access, please wait 15 minutes for the lockout period to end, and then use the \"Forgot Password\" link again, which will work normally. If you still cannot log in after waiting 15 minutes, please let us know so we can assist you further.",
+        "prompt_tokens": 861,
+        "completion_tokens": 133,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "q4",
+      "question": "I want to go to Account Settings, Subscription, then Cancel Plan -- what happens after that?",
+      "problem_type": "other",
+      "single": {
+        "seconds": 3.607253999914974,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_004_account_cancellation.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90 days']"
+          }
+        ],
+        "answer": "After you select Cancel Plan, your subscription will remain active until the end of your current billing cycle, and there are no partial refunds for any remaining days. Following the cancellation, your customer data is retained for 90 days in case you decide to reactivate your account.",
+        "prompt_tokens": 2574,
+        "completion_tokens": 218,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.8250035000965,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_004_account_cancellation.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90 days']"
+          }
+        ],
+        "answer": "When you cancel your subscription, the cancellation takes effect at the end of your current billing cycle, and please note that there are no partial refunds for any remaining days. \n\nAfter your cancellation goes into effect, we will retain your customer data for 90 days in case you decide to reactivate your account. After that 90-day window, all of your data will be permanently deleted and cannot be recovered.",
+        "prompt_tokens": 872,
+        "completion_tokens": 119,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "q5",
+      "question": "there are two $29.99 charges on my statement from the same day",
+      "problem_type": "other",
+      "single": {
+        "seconds": 3.530732600018382,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_005_billing_dispute.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['reversed']"
+          }
+        ],
+        "answer": "Duplicate charges of the same amount on the same day are usually caused by a payment retry after a temporarily declined card. These are almost always automatically reversed by the payment processor within 5-7 business days.",
+        "prompt_tokens": 2603,
+        "completion_tokens": 205,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 3.438037700019777,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_005_billing_dispute.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['reversed']"
+          }
+        ],
+        "answer": "I’m happy to explain why you’re seeing two $29.99 entries for the same day.\n\nWhen a card is temporarily declined, our payment system automatically tries the charge again. That retry can create a second, identical charge on the same day. In most cases the payment processor recognizes the duplicate and reverses one of them — the “pending” or “reversed” entry you’ll see on your bank statement—while the other charge settles normally. This reversal is processed automatically and typically completes within **5‑7 business days**.\n\nYou don’t need to request a separate refund; the duplicate charge will be refunded by the payment processor on its own. Please keep an eye on your statement: you should see one charge marked as “settled” and the other as “pending” or “reversed.” If after 7 business days both charges remain settled, let me know and I’ll investigate further.",
+        "prompt_tokens": 936,
+        "completion_tokens": 345,
+        "specialists_used": [
+          "billing_refunds"
+        ]
+      }
+    },
+    {
+      "id": "q6",
+      "question": "it's been 45 days since I bought it, can I still get money back?",
+      "problem_type": "other",
+      "single": {
+        "seconds": 7.945645700208843,
+        "llm_calls": 4,
+        "passed": false,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_002_refund_window.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": false,
+            "reason": "missing keyword(s): ['50%']"
+          }
+        ],
+        "answer": "Yes, because your purchase was made 45 days ago, you fall into the 31‑60 day window. Our policy allows a partial refund of up to 50 % for requests made during this period, at the agent’s discretion and provided the account shows minimal usage. If you’d like to proceed, just let me know and I’ll start the refund process for you.",
+        "prompt_tokens": 5970,
+        "completion_tokens": 918,
+        "steps_taken": 4,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 3.3899811001028866,
+        "llm_calls": 2,
+        "passed": false,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_002_refund_window.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": false,
+            "reason": "missing keyword(s): ['50%']"
+          }
+        ],
+        "answer": "Yes—you’re still eligible for a refund. Our policy provides a **50 % partial refund for requests made between 31 and 60 days after purchase**, as long as the account shows minimal usage. Since it’s been 45 days and you haven’t used the product, we can issue that partial refund for you. I’ll go ahead and process it right away.",
+        "prompt_tokens": 935,
+        "completion_tokens": 410,
+        "specialists_used": [
+          "billing_refunds"
+        ]
+      }
+    },
+    {
+      "id": "q7",
+      "question": "carrier says lost in transit, what do we do for the customer?",
+      "problem_type": "other",
+      "single": {
+        "seconds": 3.8041977998800576,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_003_shipping_delay.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['reshipment']"
+          }
+        ],
+        "answer": "If the carrier says the package is lost in transit and tracking shows no movement in the last 3 days, we will file a \"lost in transit\" claim with the carrier and offer you either a full reshipment at no cost or a full refund, whichever you prefer.",
+        "prompt_tokens": 2623,
+        "completion_tokens": 233,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.967689000070095,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_003_shipping_delay.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['reshipment']"
+          }
+        ],
+        "answer": "Based on our policy for domestic orders delayed more than 7 business days past the estimated delivery date, if the carrier tracking link shows no movement in the last 3 days, we will file a \"lost in transit\" claim with the carrier and offer you your choice of either a full reshipment at no cost or a full refund.",
+        "prompt_tokens": 899,
+        "completion_tokens": 106,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "q11",
+      "question": "the item I got was damaged, will you refund me",
+      "problem_type": "other",
+      "single": {
+        "seconds": 4.0636881000828,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_006_defective_item_refund.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90 days']"
+          }
+        ],
+        "answer": "Yes, defective or damaged items are eligible for a full refund as long as you report the damage within 90 days of delivery and provide a photo of the damage.",
+        "prompt_tokens": 2603,
+        "completion_tokens": 174,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.568765099858865,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_006_defective_item_refund.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90 days']"
+          }
+        ],
+        "answer": "Yes, you are eligible for a full refund for a defective or damaged item, regardless of your purchase date, as long as you report the defect within 90 days of delivery and provide a photo of the damage. Please share a photo of the damaged item with us so we can process your full refund.",
+        "prompt_tokens": 891,
+        "completion_tokens": 97,
+        "specialists_used": [
+          "billing_refunds"
+        ]
+      }
+    },
+    {
+      "id": "q12",
+      "question": "you guys charged me the wrong price",
+      "problem_type": "other",
+      "single": {
+        "seconds": 3.5113691999576986,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_007_incorrect_charge_amount.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['2 business days']"
+          }
+        ],
+        "answer": "You were charged the wrong amount ($49.99 instead of $29.99). According to our policy, I am escalating this to our billing team to manually adjust the charge within 2 business days. Please provide a screenshot of the advertised price and the actual charge to help speed up the process.",
+        "prompt_tokens": 2555,
+        "completion_tokens": 199,
+        "steps_taken": 2,
+        "stopped_reason": "escalated"
+      },
+      "team": {
+        "seconds": 3.120896899839863,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_007_incorrect_charge_amount.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['2 business days']"
+          }
+        ],
+        "answer": "Based on the information regarding incorrect charges, charges for the wrong amount (rather than duplicates) are not automatically reversed by the payment processor. I can escalate this directly to our billing team for you once you provide a screenshot of the advertised price and the actual charge, and they will manually adjust the charge within 2 business days.",
+        "prompt_tokens": 878,
+        "completion_tokens": 96,
+        "specialists_used": [
+          "billing_refunds"
+        ]
+      }
+    },
+    {
+      "id": "q8",
+      "question": "exactly how many days after cancelling is my data deleted?",
+      "problem_type": "other",
+      "single": {
+        "seconds": 3.3229618999175727,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_004_account_cancellation.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90']"
+          }
+        ],
+        "answer": "After cancelling your subscription, your data is retained for 90 days in case you wish to reactivate your account. After 90 days, all data is permanently deleted.",
+        "prompt_tokens": 2584,
+        "completion_tokens": 161,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.8890708000399172,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_004_account_cancellation.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90']"
+          }
+        ],
+        "answer": "Your data is retained for 90 days after cancellation in case you wish to reactivate your account. After that 90-day window, all of your data is permanently deleted and cannot be recovered.",
+        "prompt_tokens": 868,
+        "completion_tokens": 80,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "q9",
+      "question": "what percentage refund do I get if I ask between 31 and 60 days after buying?",
+      "problem_type": "other",
+      "single": {
+        "seconds": 6.938579699955881,
+        "llm_calls": 4,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_002_refund_window.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['50%']"
+          }
+        ],
+        "answer": "If you request a refund between 31 and 60 days after purchase, you are eligible for a partial refund of 50% (subject to agent discretion and minimal usage).",
+        "prompt_tokens": 5473,
+        "completion_tokens": 711,
+        "steps_taken": 4,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 3.546097200131044,
+        "llm_calls": 2,
+        "passed": false,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_002_refund_window.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": false,
+            "reason": "missing keyword(s): ['50%']"
+          }
+        ],
+        "answer": "The refund for requests made 31‑60 days after purchase is **50 %** of the purchase price. This is a partial refund that may be granted at the agent’s discretion, assuming minimal usage of the account.【Source: ticket_002_refund_window.txt】",
+        "prompt_tokens": 960,
+        "completion_tokens": 301,
+        "specialists_used": [
+          "billing_refunds"
+        ]
+      }
+    },
+    {
+      "id": "q10",
+      "question": "how many business days do you wait before filing a lost-in-transit claim?",
+      "problem_type": "other",
+      "single": {
+        "seconds": 3.4375356999225914,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_003_shipping_delay.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['3 days']"
+          }
+        ],
+        "answer": "For domestic orders delayed more than 7 business days past the estimated delivery date, we wait if tracking shows no movement in the last 3 days before filing a 'lost in transit' claim with the carrier.",
+        "prompt_tokens": 2627,
+        "completion_tokens": 191,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.31391409994103,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_003_shipping_delay.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['3 days']"
+          }
+        ],
+        "answer": "Based on your order's status, we wait until domestic orders are delayed more than 7 business days past the estimated delivery date, provided that the carrier tracking shows no movement in the last 3 days.",
+        "prompt_tokens": 904,
+        "completion_tokens": 82,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "q13",
+      "question": "90 days delete data",
+      "problem_type": "other",
+      "single": {
+        "seconds": 3.9620906999334693,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_004_account_cancellation.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90']"
+          }
+        ],
+        "answer": "After your account is cancelled, your customer data is retained for 90 days so that you have the option to reactivate your account if you wish. Once those 90 days have passed, all of your data is permanently deleted and cannot be recovered.",
+        "prompt_tokens": 2572,
+        "completion_tokens": 174,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.8330149000976235,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_004_account_cancellation.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90']"
+          }
+        ],
+        "answer": "You can cancel your subscription at any time by going to Account Settings > Subscription > Cancel Plan. Your cancellation will become effective at the end of your current billing cycle, though please note that we do not offer partial refunds for any remaining days. \n\nRegarding your data, we retain it for 90 days after cancellation in case you decide to reactivate your account. After that 90-day window, all of your data is permanently deleted and cannot be recovered.",
+        "prompt_tokens": 864,
+        "completion_tokens": 134,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "q14",
+      "question": "29.99 x2 reversed",
+      "problem_type": "other",
+      "single": {
+        "seconds": 4.625754399923608,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_005_billing_dispute.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['reversed']"
+          }
+        ],
+        "answer": "Identical charges of $29.99 on the same day are usually caused by a payment retry after a temporarily declined card. These duplicate charges are almost always automatically reversed by the payment processor within 5 to 7 business days. You can check your bank statement to see if only one charge appears as settled while the other shows as pending or reversed.",
+        "prompt_tokens": 2787,
+        "completion_tokens": 446,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.4846652999985963,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_005_billing_dispute.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['reversed']"
+          }
+        ],
+        "answer": "Duplicate charges of $29.99 on the same day are usually caused by a payment retry after a temporarily declined card, and we find that they are almost always automatically reversed by the payment processor within 5-7 business days.",
+        "prompt_tokens": 865,
+        "completion_tokens": 86,
+        "specialists_used": [
+          "billing_refunds"
+        ]
+      }
+    },
+    {
+      "id": "q15",
+      "question": "3 attempts locked 15 min",
+      "problem_type": "other",
+      "single": {
+        "seconds": 3.2957266999874264,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_001_password_lockout.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['15 minutes']"
+          }
+        ],
+        "answer": "This is expected behavior. After 3 failed login attempts, your account locks for 15 minutes for security reasons. During this lockout window, no password reset email is sent by design. Please wait 15 minutes and then use the \"Forgot Password\" link again, which will work normally once the lockout period ends. If you still cannot log in after 15 minutes, please let us know so we can assist further.",
+        "prompt_tokens": 2567,
+        "completion_tokens": 230,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.619828100083396,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'ticket_001_password_lockout.txt' present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['15 minutes']"
+          }
+        ],
+        "answer": "After 3 failed login attempts, your account locks for 15 minutes for security reasons, and password reset emails are not sent during this lockout window by design. \n\nTo unlock your account, I recommend waiting for the 15-minute lockout period to end. Once that time has passed, please use the \"Forgot Password\" link again, and it will work normally. If you still cannot log in after waiting 15 minutes, please let us know so I can escalate your issue for a manual unlock.",
+        "prompt_tokens": 857,
+        "completion_tokens": 150,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "r1",
+      "question": "how does customer support ticketing work and what happens to my data if I cancel my subscription",
+      "problem_type": "retrieval_failure",
+      "single": {
+        "seconds": 5.344373499974608,
+        "llm_calls": 3,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_sources_all",
+            "passed": true,
+            "reason": "all 2 expected sources present"
+          },
+          {
+            "name": "forbidden_sources",
+            "passed": true,
+            "reason": "no forbidden sources present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90 days']"
+          }
+        ],
+        "answer": "Customer support ticketing software helps teams manage and respond to written customer support requests, such as emails. Regarding your subscription, you can cancel it anytime by going to Account Settings > Subscription > Cancel Plan. The cancellation will take effect at the end of your current billing cycle, and there are no partial refunds for remaining days. After cancellation, your data is retained for 90 days in case you decide to reactivate your account.",
+        "prompt_tokens": 4211,
+        "completion_tokens": 271,
+        "steps_taken": 3,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 2.6539176998194307,
+        "llm_calls": 2,
+        "passed": false,
+        "assertions": [
+          {
+            "name": "expected_sources_all",
+            "passed": false,
+            "reason": "missing: ['customer support.pdf'] -- got ['ticket_004_account_cancellation.txt']"
+          },
+          {
+            "name": "forbidden_sources",
+            "passed": true,
+            "reason": "no forbidden sources present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90 days']"
+          }
+        ],
+        "answer": "If you cancel your subscription, your data will be retained for 90 days in case you decide to reactivate it.",
+        "prompt_tokens": 840,
+        "completion_tokens": 59,
+        "specialists_used": [
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "r2",
+      "question": "why is my order delayed, how do I get a refund for a defective item, and why was I charged the wrong amount",
+      "problem_type": "retrieval_failure",
+      "single": {
+        "seconds": 7.867026399821043,
+        "llm_calls": 4,
+        "passed": false,
+        "assertions": [
+          {
+            "name": "expected_sources_all",
+            "passed": true,
+            "reason": "all 3 expected sources present"
+          },
+          {
+            "name": "forbidden_sources",
+            "passed": false,
+            "reason": "forbidden source(s) present: ['ticket_002_refund_window.txt', 'ticket_005_billing_dispute.txt']"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90 days']"
+          }
+        ],
+        "answer": "Regarding your order delay, if an order is delayed more than 7 business days past the estimated delivery date and shows no movement in the last 3 days, we can file a lost in transit claim with the carrier and offer you either a full reshipment at no cost or a full refund. Regarding your defective item, defective items are eligible for a full refund as long as you report the defect within 90 days of delivery and provide a photo of the damage. Regarding the incorrect charge, incorrect-amount charges must be escalated to our billing team to manually adjust the charge within 2 business days; I am escalating your billing dispute to the billing team now.",
+        "prompt_tokens": 6424,
+        "completion_tokens": 431,
+        "steps_taken": 4,
+        "stopped_reason": "escalated"
+      },
+      "team": {
+        "seconds": 5.22340129991062,
+        "llm_calls": 4,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_sources_all",
+            "passed": true,
+            "reason": "all 3 expected sources present"
+          },
+          {
+            "name": "forbidden_sources",
+            "passed": true,
+            "reason": "no forbidden sources present"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": true,
+            "reason": "all keywords present: ['90 days']"
+          }
+        ],
+        "answer": "Regarding your order delay, your domestic order was estimated to arrive in 5 business days, but it has now been 9 business days past that estimate without delivery. We are currently checking the carrier tracking link for updates and will investigate whether a \"lost in transit\" claim needs to be filed with the carrier. Once we have more information, we will be happy to offer you either a full reshipment at no cost or a full refund, whichever you prefer.\n\nTo get a refund for a defective item, you are eligible for a full refund regardless of the purchase date, as long as you report the defect within 90 days of delivery and provide a photo of the damage. \n\nRegarding the incorrect charge amount, charges involving the wrong amount (as opposed to duplicates) are not automatically reversed by the payment processor. Please let us know the details of your incorrect charge so we can assist you further with that correction.",
+        "prompt_tokens": 1815,
+        "completion_tokens": 418,
+        "specialists_used": [
+          "billing_refunds",
+          "account_access"
+        ]
+      }
+    },
+    {
+      "id": "r3",
+      "question": "what's the best pizza topping?",
+      "problem_type": "refusal_misfire",
+      "single": {
+        "seconds": 3.423990499926731,
+        "llm_calls": 2,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "must_refuse",
+            "passed": true,
+            "reason": "correctly refused"
+          }
+        ],
+        "answer": "I don't know based on the available documents.",
+        "prompt_tokens": 2579,
+        "completion_tokens": 140,
+        "steps_taken": 2,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 1.338642599992454,
+        "llm_calls": 1,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "must_refuse",
+            "passed": true,
+            "reason": "correctly refused"
+          }
+        ],
+        "answer": "I couldn't find relevant information to answer \"what's the best pizza topping?\". Try asking something related to the topics covered in the documents.",
+        "prompt_tokens": 253,
+        "completion_tokens": 24,
+        "specialists_used": []
+      }
+    },
+    {
+      "id": "r4",
+      "question": "What is the recommended management ratio for customer support teams according to the guide?",
+      "problem_type": "retrieval_failure",
+      "single": {
+        "seconds": 11.890366399893537,
+        "llm_calls": 5,
+        "passed": false,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'customer support.pdf' present"
+          },
+          {
+            "name": "must_cite_page",
+            "passed": true,
+            "reason": "page(s) present: [1, 2, 4, 3, 5, 7, 21, 7, 20]"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": false,
+            "reason": "missing keyword(s): ['5-15']"
+          }
+        ],
+        "answer": "The guide recommends a management ratio of about 1 manager for every 5‑15 support agents.",
+        "prompt_tokens": 7771,
+        "completion_tokens": 1265,
+        "steps_taken": 5,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 1.613712899852544,
+        "llm_calls": 1,
+        "passed": false,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": false,
+            "reason": "'customer support.pdf' missing -- got []"
+          },
+          {
+            "name": "must_cite_page",
+            "passed": false,
+            "reason": "no chunk carried a page number -- got pages=[]"
+          },
+          {
+            "name": "expected_keywords",
+            "passed": false,
+            "reason": "missing keyword(s): ['5-15']"
+          }
+        ],
+        "answer": "I couldn't find relevant information to answer \"What is the recommended management ratio for customer support teams according to the guide?\". Try asking something related to the topics covered in the documents.",
+        "prompt_tokens": 300,
+        "completion_tokens": 98,
+        "specialists_used": []
+      }
+    },
+    {
+      "id": "r5",
+      "question": "how do I contact customer support",
+      "problem_type": "retrieval_failure",
+      "single": {
+        "seconds": 6.041421599918976,
+        "llm_calls": 3,
+        "passed": true,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": true,
+            "reason": "'customer support.pdf' present"
+          },
+          {
+            "name": "must_cite_page",
+            "passed": true,
+            "reason": "page(s) present: [16, 27, 13, 14, 14, 21, 27]"
+          }
+        ],
+        "answer": "I don't know based on the available documents.",
+        "prompt_tokens": 4952,
+        "completion_tokens": 340,
+        "steps_taken": 3,
+        "stopped_reason": "finished"
+      },
+      "team": {
+        "seconds": 1.066154500003904,
+        "llm_calls": 1,
+        "passed": false,
+        "assertions": [
+          {
+            "name": "expected_source",
+            "passed": false,
+            "reason": "'customer support.pdf' missing -- got []"
+          },
+          {
+            "name": "must_cite_page",
+            "passed": false,
+            "reason": "no chunk carried a page number -- got pages=[]"
+          }
+        ],
+        "answer": "I couldn't find relevant information to answer \"how do I contact customer support\". Try asking something related to the topics covered in the documents.",
+        "prompt_tokens": 251,
+        "completion_tokens": 24,
+        "specialists_used": []
+      }
+    }
+  ],
+  "summary": {
+    "n": 20,
+    "single": {
+      "avg_seconds": 5.052236969966907,
+      "total_calls": 52,
+      "total_tokens": 79604,
+      "avg_tokens": 3980.2,
+      "total_cost": 0.028671000000000002,
+      "avg_cost": 0.00143355,
+      "passed": 16
+    },
+    "team": {
+      "avg_seconds": 3.115072885004338,
+      "total_calls": 39,
+      "total_tokens": 19801,
+      "avg_tokens": 990.05,
+      "total_cost": 0.0087265,
+      "avg_cost": 0.000436325,
+      "passed": 15
+    }
+  }
+}

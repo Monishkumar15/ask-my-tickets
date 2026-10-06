@@ -342,6 +342,10 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
     llm_calls = 0
     all_sources_seen = []
     all_chunks_seen = {}  # keyed by (source, chunk_index) to dedup across repeated searches
+    # Week 10: accumulated across every call_llm() in this run, so the
+    # multi-agent race (evals/race_team_vs_agent.py) can report real
+    # tokens/cost for the single agent too, not just the team.
+    usage_totals = {"prompt_tokens": 0, "completion_tokens": 0}
 
     async with MCPToolSession(existing_session=mcp_session) as mcp:
         tools = await mcp.discover_tools()
@@ -351,11 +355,14 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
             elapsed = time.monotonic() - started
             if elapsed > MAX_SECONDS:
                 return _stop(trace, question, history, all_sources_seen, all_chunks_seen, llm_calls,
-                             reason=f"time budget exceeded ({elapsed:.1f}s > {MAX_SECONDS}s)")
+                             usage_totals, reason=f"time budget exceeded ({elapsed:.1f}s > {MAX_SECONDS}s)")
 
             prompt = _build_agent_prompt(question, history, steps_left=MAX_STEPS - step_num + 1, tools=tools)
-            raw, provider_used = call_llm(prompt, preferred_provider=provider, temperature=temperature)
+            step_usage = {}
+            raw, provider_used = call_llm(prompt, preferred_provider=provider, temperature=temperature, usage_out=step_usage)
             llm_calls += 1
+            usage_totals["prompt_tokens"] += step_usage.get("prompt_tokens", 0) or 0
+            usage_totals["completion_tokens"] += step_usage.get("completion_tokens", 0) or 0
             # Which provider/model actually answered this step. call_llm can fall
             # back to the other provider, so the preferred one is not enough to
             # attribute a result to a model.
@@ -398,6 +405,8 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                     "chunks_seen": list(all_chunks_seen.values()),
                     "skipped_llm": False, "provider": provider_used, "escalated": False,
                     "steps_taken": step_num, "llm_calls": llm_calls, "stopped_reason": "finished",
+                    "prompt_tokens": usage_totals["prompt_tokens"],
+                    "completion_tokens": usage_totals["completion_tokens"],
                 }
                 result["trace_id"] = trace.finish(answer=answer, outcome="agent_answer")
                 return result
@@ -457,6 +466,8 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                     "chunks_seen": list(all_chunks_seen.values()),
                     "skipped_llm": False, "provider": provider_used, "escalated": True,
                     "steps_taken": step_num, "llm_calls": llm_calls, "stopped_reason": "escalated",
+                    "prompt_tokens": usage_totals["prompt_tokens"],
+                    "completion_tokens": usage_totals["completion_tokens"],
                 }
                 result["trace_id"] = trace.finish(answer=reason, outcome="agent_escalated")
                 return result
@@ -476,10 +487,10 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                 })
 
         return _stop(trace, question, history, all_sources_seen, all_chunks_seen, llm_calls,
-                     reason=f"exceeded {MAX_STEPS} steps without finishing")
+                     usage_totals, reason=f"exceeded {MAX_STEPS} steps without finishing")
 
 
-def _stop(trace, question, history, all_sources_seen, all_chunks_seen, llm_calls, reason):
+def _stop(trace, question, history, all_sources_seen, all_chunks_seen, llm_calls, usage_totals, reason):
     """A budget running out is a real, labeled outcome -- not silently
     treated as success, and not a crash either."""
     answer = (
@@ -492,6 +503,8 @@ def _stop(trace, question, history, all_sources_seen, all_chunks_seen, llm_calls
         "chunks_seen": list(all_chunks_seen.values()),
         "skipped_llm": False, "provider": None, "escalated": False,
         "steps_taken": len(history), "llm_calls": llm_calls, "stopped_reason": reason,
+        "prompt_tokens": usage_totals["prompt_tokens"],
+        "completion_tokens": usage_totals["completion_tokens"],
     }
     result["trace_id"] = trace.finish(answer=answer, outcome="agent_budget_exhausted")
     return result
