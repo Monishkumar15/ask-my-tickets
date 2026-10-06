@@ -179,7 +179,14 @@ DEFAULT_TOP_K=3
 EMBED_DIM=384
 RERANKER_MODEL_NAME=cross-encoder/ms-marco-MiniLM-L-6-v2
 RERANK_CANDIDATE_POOL=10
+GEMINI_INPUT_COST_PER_1K=0.00025
+GEMINI_OUTPUT_COST_PER_1K=0.0015
+GROQ_INPUT_COST_PER_1K=0.00015
+GROQ_OUTPUT_COST_PER_1K=0.0006
 ```
+The four cost-rate vars (Week 10) are standard list-price-per-1K-tokens
+comparison proxies for `evals/race_team_vs_agent.py`'s cost metric --
+real spend on this project's free-tier keys is $0.
 `GEMINI_API_KEY` and `GROQ_API_KEY` both need real values — get a free
 Gemini key at [aistudio.google.com/api-keys](https://aistudio.google.com/api-keys)
 and a free Groq key at [console.groq.com/keys](https://console.groq.com/keys).
@@ -489,6 +496,41 @@ not a prompt bug -- the fallback makes any model choice on either provider
 safe to use, instead of requiring one specific "known-good" model pinned
 in `.env`. See `FINDINGS_week7.md`'s "Update (Week 9)" note.
 
+### Week 10 -- multi-agent: a manager + 2 specialists, raced against the single agent
+
+`multi_agent.py` is a second, independent way to answer a question:
+instead of `agent.py`'s one ReAct loop, a manager (`route()`) decides
+which of two narrow specialists (`billing_refunds`, `account_access`) a
+question needs -- one, both (run genuinely in parallel), or neither (a
+clean `out_of_scope` refusal) -- then merges their answers if both ran.
+Raced against `agent.py` on the same 20 cases, scored by the same
+`assertions.py`, reporting quality/speed/tokens/cost. See
+[`FINDINGS_week10.md`](FINDINGS_week10.md) for the full write-up,
+including the real numbers, a reproducible `customer_support.pdf`
+coverage gap the team has and the single agent doesn't, and the A2A
+(Agent-to-Agent) conceptual architecture this week's scope deliberately
+kept in-process rather than built as a second networked server.
+
+```bash
+docker start qdrant-ask-my-tickets   # same as every other week -- no MCP server needed here,
+                                      # multi_agent.py calls retrieval.retrieve() directly
+.\venv\Scripts\Activate
+python multi_agent.py
+Ask a (possibly multi-part) question: why is my order delayed, how do I get a refund for a defective item, and why was I charged the wrong amount
+```
+That question needs both specialists; try a single-topic question (e.g.
+`I got locked out after typing my password wrong`) to see only one run,
+and an out-of-scope one (e.g. `what's the best pizza topping?`) to see
+the zero-retrieval refusal path.
+
+Run the race itself:
+```bash
+python evals/race_team_vs_agent.py
+```
+Prints a per-case table plus a four-metric summary (`Quality (Pass rate)`,
+`Speed (Execution latency)`, `Tokens Used`, `Cost ($)`) for both arms, and
+saves the full breakdown to `evals/team_race_results.json`.
+
 ## Project structure
 
 ```
@@ -504,6 +546,7 @@ ask-my-tickets/
 ├── agent.py                          # Week 7: hand-built ReAct agent loop -- Week 9: tools via MCP
 ├── mcp_server.py                       # Week 9: MCP server (search_tickets, list_ticket_sources)
 ├── mcp_client.py                        # Week 9: MCP client session wrapper used by agent.py
+├── multi_agent.py                        # Week 10: manager + 2 specialists, raced against agent.py
 ├── evals/                          # diagnostic/comparison scripts (not part of the runtime pipeline)
 │   ├── eval_questions.py             # labeled eval set (question + expected source/keywords)
 │   ├── compare_chunk_sizes.py          # chunk size experiment (Step 9)
@@ -515,7 +558,9 @@ ask-my-tickets/
 │   ├── trajectory_eval.py                    # Week 8: one-command outcome + trajectory runner
 │   ├── prompt_injection_test.py              # Week 8/9: isolated prompt-injection red-team test
 │   ├── mcp_server_test.py                    # Week 9: MCP discovery/tool-call/auth smoke test
-│   └── foreign_agent_demo.py                 # Week 9: zero-imports "someone else's agent" proof
+│   ├── foreign_agent_demo.py                 # Week 9: zero-imports "someone else's agent" proof
+│   ├── race_agent_vs_workflow.py              # Week 7: agent vs. fixed pipeline race
+│   └── race_team_vs_agent.py                  # Week 10: team vs. single agent race (quality/speed/tokens/cost)
 ├── ui-react/                        # React/Vite frontend (upload, ask, retrieve, trace review)
 ├── FINDINGS.md              # Week 3 chunk-size results, bugs caught, limitations
 ├── FINDINGS_week4.md          # Week 4 hybrid-search diagnosis and results
@@ -523,6 +568,7 @@ ask-my-tickets/
 ├── FINDINGS_week7.md            # Week 7 agent loop write-up
 ├── FINDINGS_week8.md             # Week 8 trajectory eval + prompt injection write-up
 ├── FINDINGS_week9.md              # Week 9 MCP integration write-up
+├── FINDINGS_week10.md              # Week 10 multi-agent race write-up
 ├── WEEK5_ERROR_ANALYSIS.md     # Week 5 trace review write-up
 ├── requirements.txt
 └── .env                          # all config incl. GEMINI_API_KEY, GROQ_API_KEY (not committed)
