@@ -150,4 +150,19 @@ REGRESSION_CASES = [
      "question": "how do I contact customer support",
      "expected_source": "customer support.pdf",
      "must_cite_page": True},
+
+    # Week 11: the real failure found via the support drill (trace
+    # 0b7819c32d2d432bb32255b0ff5efeb9, FINDINGS_week10.md Section 9) --
+    # Groq's gpt-oss-120b answered this correctly (50%) but wrote it as
+    # "50 %" (narrow no-break space), which check_expected_keywords()'s
+    # old literal substring match couldn't see past, scoring a genuinely
+    # correct answer as a FAIL. Fixed this week in assertions.py; this
+    # case guards against that exact bug quietly coming back. Reuses q9's
+    # real wording on purpose -- same question, different purpose: q9
+    # tests whether the pipeline finds the right fact, r6 tests whether
+    # the GRADER can recognize a correct answer regardless of which
+    # provider's formatting quirks produced it.
+    {"id": "r6", "problem_type": "generation_failure",
+     "question": "what percentage refund do I get if I ask between 31 and 60 days after buying?",
+     "expected_source": "ticket_002_refund_window.txt", "expected_keywords": ["50%"]},
 ]

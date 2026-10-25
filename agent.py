@@ -39,9 +39,10 @@ from config import (
     DEFAULT_TOP_K,
 )
 from langfuse import observe
+from langfuse import get_client as get_langfuse_client
 
 import injection
-from generate import PROVIDERS, call_llm
+from generate import PROVIDERS, call_llm, estimate_cost
 from mcp_client import MCPToolError, MCPToolSession
 from tracing import Trace
 
@@ -321,9 +322,18 @@ def _unwrap_single_exception(exc):
     return exc
 
 
-@observe(name="agent-run", as_type="agent")
+# capture_input=False: same reasoning as generate.py::answer_question()'s
+# own comment (read that one for the full explanation). mcp_session here
+# is a heavy object (an mcp.ClientSession) when the Week 9 test seam
+# passes one in -- normally None in real use, but @observe() would still
+# try to serialize it on the test runs that do pass one. Only question/
+# provider/temperature are meaningful trace input.
+@observe(name="agent-run", as_type="agent", capture_input=False)
 async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_PROVIDER,
                             temperature=DEFAULT_TEMPERATURE, mcp_session=None):
+    get_langfuse_client().update_current_span(
+        input={"question": question, "top_k": top_k, "provider": provider, "temperature": temperature}
+    )
     # Week 8 follow-up: the question is NOT neutralized (a question is supposed to
     # instruct, and rewriting a user's words would change what they asked). It is
     # scanned and the result recorded, so a direct-injection attempt is visible in
@@ -345,7 +355,11 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
     # Week 10: accumulated across every call_llm() in this run, so the
     # multi-agent race (evals/race_team_vs_agent.py) can report real
     # tokens/cost for the single agent too, not just the team.
-    usage_totals = {"prompt_tokens": 0, "completion_tokens": 0}
+    # Week 11: cost_usd added alongside -- trace.finish() auto-sums the
+    # per-step cost_usd already attached to each "agent_step" trace stage,
+    # but the returned result dict (what CLI/evals callers actually read)
+    # needs its own running total too, same as prompt/completion_tokens.
+    usage_totals = {"prompt_tokens": 0, "completion_tokens": 0, "cost_usd": 0.0}
 
     async with MCPToolSession(existing_session=mcp_session) as mcp:
         tools = await mcp.discover_tools()
@@ -367,6 +381,16 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
             # back to the other provider, so the preferred one is not enough to
             # attribute a result to a model.
             llm_meta = {"provider": provider_used, "model": PROVIDERS[provider_used]["model_id"]}
+            # Week 11: per-step cost, not just the run's final total -- every
+            # trace.stage("agent_step", ...) call below gets the same
+            # step_cost, since they all report on this one step's call_llm().
+            step_cost = estimate_cost(provider_used, step_usage)
+            usage_totals["cost_usd"] += step_cost
+            step_usage_fields = {
+                "prompt_tokens": step_usage.get("prompt_tokens", 0) or 0,
+                "completion_tokens": step_usage.get("completion_tokens", 0) or 0,
+                "cost_usd": step_cost,
+            }
             action = _parse_action(raw)
 
             # Enforced in code, not just requested in the prompt -- a fabricated
@@ -379,7 +403,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
             # observation forcing a search first, the same self-correction
             # pattern _parse_action already uses for malformed JSON.
             if action["action"] in ("finish", "escalate") and not history:
-                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
+                trace.stage("agent_step", step=step_num, **llm_meta, **step_usage_fields, thought=action["thought"],
                             action=action["action"], blocked="no_search_yet")
                 history.append({
                     "thought": action["thought"], "action": action["action"],
@@ -398,7 +422,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                     # already drops sources on a refusal; listing one here would
                     # read as if the document backed the refusal.
                     sources = []
-                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
+                trace.stage("agent_step", step=step_num, **llm_meta, **step_usage_fields, thought=action["thought"],
                             action="finish", action_input=action["action_input"])
                 result = {
                     "answer": answer, "sources": list(dict.fromkeys(sources)),
@@ -407,6 +431,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                     "steps_taken": step_num, "llm_calls": llm_calls, "stopped_reason": "finished",
                     "prompt_tokens": usage_totals["prompt_tokens"],
                     "completion_tokens": usage_totals["completion_tokens"],
+                    "total_cost_usd": usage_totals["cost_usd"],
                 }
                 result["trace_id"] = trace.finish(answer=answer, outcome="agent_answer")
                 return result
@@ -436,7 +461,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                 # same lesson Week 6 already learned for judge.py: a judge given
                 # only the outcome, not the evidence, can't tell a sound
                 # conclusion from a misread one.
-                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
+                trace.stage("agent_step", step=step_num, **llm_meta, **step_usage_fields, thought=action["thought"],
                             action=action["action"], action_input=action["action_input"],
                             result_count=len(items), observation=observation, via="mcp",
                             injection=injection.summarize(detections) if detections else None)
@@ -459,7 +484,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                 # next step, just not one the agent can carry out itself.
                 reason = action["action_input"].get("reason", "")
                 sources = _validate_sources(action["action_input"].get("sources"), all_sources_seen)
-                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
+                trace.stage("agent_step", step=step_num, **llm_meta, **step_usage_fields, thought=action["thought"],
                             action="escalate", action_input=action["action_input"])
                 result = {
                     "answer": reason, "sources": list(dict.fromkeys(sources)),
@@ -468,6 +493,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                     "steps_taken": step_num, "llm_calls": llm_calls, "stopped_reason": "escalated",
                     "prompt_tokens": usage_totals["prompt_tokens"],
                     "completion_tokens": usage_totals["completion_tokens"],
+                    "total_cost_usd": usage_totals["cost_usd"],
                 }
                 result["trace_id"] = trace.finish(answer=reason, outcome="agent_escalated")
                 return result
@@ -477,7 +503,7 @@ async def _run_agent_async(question, top_k=DEFAULT_TOP_K, provider=DEFAULT_LLM_P
                 # observation, not a crash -- gives the model a chance to
                 # correct itself on the next step instead of the whole run
                 # dying over one bad response.
-                trace.stage("agent_step", step=step_num, **llm_meta, thought=action["thought"],
+                trace.stage("agent_step", step=step_num, **llm_meta, **step_usage_fields, thought=action["thought"],
                             action=action["action"], error="unrecognized_action")
                 history.append({
                     "thought": action["thought"], "action": action["action"],
@@ -505,6 +531,7 @@ def _stop(trace, question, history, all_sources_seen, all_chunks_seen, llm_calls
         "steps_taken": len(history), "llm_calls": llm_calls, "stopped_reason": reason,
         "prompt_tokens": usage_totals["prompt_tokens"],
         "completion_tokens": usage_totals["completion_tokens"],
+        "total_cost_usd": usage_totals["cost_usd"],
     }
     result["trace_id"] = trace.finish(answer=answer, outcome="agent_budget_exhausted")
     return result
@@ -516,3 +543,5 @@ if __name__ == "__main__":
     print(f"\nAnswer: {result['answer']}")
     print(f"Sources: {', '.join(result['sources']) or 'none'}")
     print(f"Steps taken: {result['steps_taken']}, LLM calls: {result['llm_calls']}, stopped: {result['stopped_reason']}")
+    print(f"Tokens: {result['prompt_tokens']} prompt + {result['completion_tokens']} completion, "
+          f"cost: ${result['total_cost_usd']:.6f}")

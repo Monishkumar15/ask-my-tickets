@@ -264,6 +264,9 @@ textarea, input, select { font: inherit; color: inherit; }
 .trace-review-card { display: flex; flex-direction: column; flex: 1; min-height: 0; }
 .trace-review-card .card-head { flex-shrink: 0; }
 
+.trace-search { display: flex; gap: 0.5rem; margin-bottom: 0.6rem; flex-shrink: 0; }
+.trace-search input { flex: 1; min-width: 0; padding: 0.45rem 0.75rem; border-radius: 8px; border: 1px solid var(--border-soft); background: var(--panel-2); color: var(--text); font-size: 0.85rem; }
+.search-status { font-size: 0.8rem; color: var(--text-dim); margin: 0 0 0.6rem; }
 .trace-toolbar { display: flex; justify-content: space-between; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 1rem; flex-shrink: 0; }
 .filter-tabs { display: flex; gap: 0.3rem; background: var(--panel-2); border: 1px solid var(--border-soft); border-radius: 999px; padding: 0.2rem; }
 .filter-tabs button { background: transparent; border: 0; border-radius: 999px; padding: 0.35rem 0.85rem; font-size: 0.8rem; font-weight: 650; color: var(--text-dim); }

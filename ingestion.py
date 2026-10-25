@@ -397,6 +397,17 @@ def build_database():
     embeddings = [c["embedding"].tolist() for c in chunks]
     build_collection(client, chunks, embeddings)
 
+    # Week 11: a document-level import, not module-level -- semantic_cache.py
+    # already imports get_client/get_embedding_model FROM this file, so a
+    # top-level "import semantic_cache" here would be circular. Every
+    # cached answer may now reference a ticket that was just added, edited,
+    # or removed -- invalidate immediately rather than waiting for
+    # CACHE_TTL_SECONDS, and deliberately only here (an actual rebuild),
+    # never on ordinary app startup, so a routine restart doesn't throw
+    # away still-valid cached answers for no reason.
+    import semantic_cache
+    semantic_cache.clear(client=client)
+
     return client
 
 

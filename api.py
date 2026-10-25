@@ -32,7 +32,7 @@ from ingestion import LOADERS, build_database, get_client, get_embedding_model, 
 from ingestion import count as count_chunks
 from retrieval import retrieve
 from sessions import add_message, create_session, delete_session, get_session, list_sessions
-from tracing import annotate, get as get_trace, list_recent
+from tracing import annotate, get as get_trace, list_recent, search as search_traces_impl
 
 # evals/ is normally a one-way dependency (eval scripts import from the app
 # root, never the reverse) -- this is the one exception: the Week 8
@@ -250,6 +250,22 @@ def traces(limit: int = 50, offset: int = 0):
     if not 1 <= limit <= 200: raise HTTPException(status_code=422, detail="limit must be between 1 and 200")
     if offset < 0: raise HTTPException(status_code=422, detail="offset must be >= 0")
     records, total = list_recent(limit, offset)
+    return {"traces": records, "total": total, "limit": limit, "offset": offset}
+
+@app.get("/traces/search")
+def traces_search(query: str = None, source: str = None, outcome: str = None,
+                   since: str = None, limit: int = 50, offset: int = 0):
+    """
+    Week 11: find a trace from a vague complaint -- a keyword in the
+    question or answer, a source document, an outcome, or a date, instead
+    of paging through every trace by hand. Declared BEFORE
+    /traces/{trace_id} below: FastAPI matches routes in declaration order,
+    and {trace_id} would otherwise greedily capture the literal path
+    segment "search" as if it were a trace id.
+    """
+    if not 1 <= limit <= 200: raise HTTPException(status_code=422, detail="limit must be between 1 and 200")
+    if offset < 0: raise HTTPException(status_code=422, detail="offset must be >= 0")
+    records, total = search_traces_impl(query=query, source=source, outcome=outcome, since=since, limit=limit, offset=offset)
     return {"traces": records, "total": total, "limit": limit, "offset": offset}
 
 @app.get("/traces/{trace_id}")

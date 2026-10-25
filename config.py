@@ -215,3 +215,36 @@ GEMINI_INPUT_COST_PER_1K = float(os.getenv("GEMINI_INPUT_COST_PER_1K", "0.00025"
 GEMINI_OUTPUT_COST_PER_1K = float(os.getenv("GEMINI_OUTPUT_COST_PER_1K", "0.0015"))
 GROQ_INPUT_COST_PER_1K = float(os.getenv("GROQ_INPUT_COST_PER_1K", "0.00015"))
 GROQ_OUTPUT_COST_PER_1K = float(os.getenv("GROQ_OUTPUT_COST_PER_1K", "0.0006"))
+
+# --- Semantic cache (Week 11) ---
+# A second small Qdrant collection (semantic_cache.py) that reuses a past
+# answer when a NEW question means roughly the same thing as one already
+# asked -- not just exact text match. The one measured cost improvement
+# this week: skips retrieval + the LLM call entirely on a hit.
+CACHE_COLLECTION_NAME = os.getenv("CACHE_COLLECTION_NAME", "answer_cache")
+# Empirically measured, then corrected after a real false-positive caught
+# live (see FINDINGS_week11.md): an initial 5-pair sample suggested 0.75
+# was safe, but computing ALL pairwise distances across the real eval set
+# found genuinely DIFFERENT questions sitting as close as 0.413 ("I want
+# to cancel my subscription" vs a compound question that also covers
+# cancellation) -- closer than some genuine paraphrase pairs (0.433).
+# There is NO single threshold that cleanly separates "same question,
+# different wording" from "different question, overlapping topic" on
+# short support questions -- the signal is too weak at this granularity.
+# 0.35 is deliberately conservative: it only accepts the pairs confirmed
+# to be genuine identical-question paraphrases (0.0-0.337 in the real
+# measurement), trading a lower cache hit rate for not risking a wrong
+# cached answer -- see semantic_cache.py's source-overlap check for the
+# second, independent safety gate layered on top of this threshold.
+CACHE_SIMILARITY_THRESHOLD = float(os.getenv("CACHE_SIMILARITY_THRESHOLD", "0.35"))
+# How long a cached answer stays eligible for reuse, in seconds (default:
+# 24 hours). Solves a different problem than the similarity/source checks
+# above -- those guard against matching the WRONG past question; this
+# guards against matching the RIGHT past question whose answer may no
+# longer be true, since nothing else here would ever notice a ticket's
+# policy changed between when an answer was cached and when it's reused.
+# An expired entry is rejected at lookup time (a cache miss, falls through
+# to a fresh answer), not physically deleted -- cheap and simple; a real
+# high-volume deployment would add periodic deletion of expired entries
+# too, not done here since lookup-time rejection is already correct.
+CACHE_TTL_SECONDS = int(os.getenv("CACHE_TTL_SECONDS", str(24 * 60 * 60)))

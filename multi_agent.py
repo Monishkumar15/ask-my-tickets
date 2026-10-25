@@ -23,7 +23,7 @@ import asyncio
 import json
 
 from config import DEFAULT_TOP_K, DISTANCE_THRESHOLD
-from generate import call_llm
+from generate import call_llm, estimate_cost
 import injection
 from retrieval import retrieve
 from tracing import Trace
@@ -131,7 +131,14 @@ Customer question: {question}
 
 Respond with ONLY a JSON object, no other text:
 {{"billing_refunds": "<focused sub-question, or null>", "account_access": "<focused sub-question, or null>", "out_of_scope": true or false}}"""
-    raw, _provider_used = call_llm(prompt, temperature=0, usage_out=usage_out)
+    raw, provider_used = call_llm(prompt, temperature=0, usage_out=usage_out)
+    # Week 11: stashed into usage_out itself (a reserved key, not a real
+    # usage field) rather than changing this function's return shape --
+    # route()'s return value is also logged verbatim as trace.stage("route",
+    # routing=routing) data, so it should stay exactly the routing decision,
+    # not a tuple callers have to unpack.
+    if usage_out is not None:
+        usage_out["_provider"] = provider_used
     try:
         return json.loads(_strip_code_fence(raw))
     except (json.JSONDecodeError, AttributeError):
@@ -192,7 +199,9 @@ Context:
 Question: {sub_question}
 
 Answer:"""
-    answer, _provider_used = call_llm(prompt, usage_out=usage_out)
+    answer, provider_used = call_llm(prompt, usage_out=usage_out)
+    if usage_out is not None:
+        usage_out["_provider"] = provider_used
     sources = list(dict.fromkeys(c["source"] for c in chunks))
     return {"domain": domain, "sub_question": sub_question, "answer": answer,
             "sources": sources, "chunks": chunks, "skipped_llm": False}
@@ -224,19 +233,34 @@ _REFUSAL_TEMPLATE = (
 
 async def _run_team_async(question, model=None, client=None):
     trace = Trace(question, {"mode": "team", "specialists": list(SPECIALIST_INSTRUCTIONS)})
-    usage_totals = {"prompt_tokens": 0, "completion_tokens": 0}
+    usage_totals = {"prompt_tokens": 0, "completion_tokens": 0, "cost_usd": 0.0}
     llm_calls = 0
 
     def _accumulate(usage):
+        """Returns this one call's cost_usd, so the caller's trace.stage()
+        can attach per-step cost, not just contribute to the run's total
+        (Week 11) -- provider_used rides along in usage["_provider"],
+        stashed there by route()/run_specialist() themselves."""
         nonlocal llm_calls
         llm_calls += 1
         usage_totals["prompt_tokens"] += usage.get("prompt_tokens", 0) or 0
         usage_totals["completion_tokens"] += usage.get("completion_tokens", 0) or 0
+        # A specialist whose confidence gate failed returns before ever
+        # calling call_llm() -- its usage dict stays empty, no "_provider"
+        # key at all, so there's no real cost to price (and no provider to
+        # look a rate up for).
+        provider = usage.get("_provider")
+        cost = estimate_cost(provider, usage) if provider else 0.0
+        usage_totals["cost_usd"] += cost
+        return cost
 
     route_usage = {}
     routing = route(question, usage_out=route_usage)
-    _accumulate(route_usage)
-    trace.stage("route", routing=routing)
+    route_cost = _accumulate(route_usage)
+    trace.stage("route", routing=routing,
+                prompt_tokens=route_usage.get("prompt_tokens", 0) or 0,
+                completion_tokens=route_usage.get("completion_tokens", 0) or 0,
+                cost_usd=route_cost)
 
     def _finish(answer, sources, specialists_used, outcome):
         result = {
@@ -245,6 +269,7 @@ async def _run_team_async(question, model=None, client=None):
             "llm_calls": llm_calls,
             "prompt_tokens": usage_totals["prompt_tokens"],
             "completion_tokens": usage_totals["completion_tokens"],
+            "total_cost_usd": usage_totals["cost_usd"],
         }
         result["trace_id"] = trace.finish(answer=answer, outcome=outcome)
         return result
@@ -277,10 +302,13 @@ async def _run_team_async(question, model=None, client=None):
 
     specialist_results = []
     for r, u in results:
-        _accumulate(u)
+        specialist_cost = _accumulate(u)
         specialist_results.append(r)
         trace.stage("specialist", domain=r["domain"], sub_question=r["sub_question"],
-                    skipped_llm=r["skipped_llm"], result_count=len(r["chunks"]))
+                    skipped_llm=r["skipped_llm"], result_count=len(r["chunks"]),
+                    prompt_tokens=u.get("prompt_tokens", 0) or 0,
+                    completion_tokens=u.get("completion_tokens", 0) or 0,
+                    cost_usd=specialist_cost)
 
     specialists_used = [r["domain"] for r in specialist_results]
 
@@ -292,9 +320,13 @@ async def _run_team_async(question, model=None, client=None):
 
     merge_usage = {}
     merge_prompt = _build_merge_prompt(question, specialist_results)
-    final_answer, _provider_used = call_llm(merge_prompt, usage_out=merge_usage)
-    _accumulate(merge_usage)
-    trace.stage("merge", specialists_merged=specialists_used)
+    final_answer, merge_provider = call_llm(merge_prompt, usage_out=merge_usage)
+    merge_usage["_provider"] = merge_provider
+    merge_cost = _accumulate(merge_usage)
+    trace.stage("merge", specialists_merged=specialists_used,
+                prompt_tokens=merge_usage.get("prompt_tokens", 0) or 0,
+                completion_tokens=merge_usage.get("completion_tokens", 0) or 0,
+                cost_usd=merge_cost)
 
     sources = list(dict.fromkeys(s for r in specialist_results for s in r["sources"]))
     return _finish(final_answer, sources, specialists_used, "team_answer")
@@ -322,3 +354,4 @@ if __name__ == "__main__":
     print(f"Specialists used: {result['specialists_used']}")
     print(f"LLM calls: {result['llm_calls']}, tokens: {total_tokens} "
           f"(prompt {result['prompt_tokens']}, completion {result['completion_tokens']})")
+    print(f"Cost: ${result['total_cost_usd']:.6f}")

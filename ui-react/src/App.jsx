@@ -691,12 +691,23 @@ function Traces({ notifyError }) {
   const [filter, setFilter] = useState('all')
   const [unreviewedOnly, setUnreviewedOnly] = useState(false)
   const [loading, setLoading] = useState(false)
+  // Week 11: a real backend search ("find the refund answer nobody logged
+  // a trace id for" -- /traces only ever paginated, never searched, so
+  // finding one specific trace among 1,700+ meant paging through by hand).
+  // searchInput is the live textbox value; activeSearch is the term an
+  // actual search was submitted with -- kept separate so load()'s own
+  // refresh/pagination re-runs the SUBMITTED search, not whatever's
+  // half-typed in the box at that moment.
+  const [searchInput, setSearchInput] = useState('')
+  const [activeSearch, setActiveSearch] = useState(null)
 
   const load = async (pageToLoad = page) => {
     setLoading(true)
     try {
       const offset = pageToLoad * TRACES_PER_PAGE
-      const data = await api.get(`/traces?limit=${TRACES_PER_PAGE}&offset=${offset}`)
+      const data = activeSearch
+        ? await api.get(`/traces/search?query=${encodeURIComponent(activeSearch)}&limit=${TRACES_PER_PAGE}&offset=${offset}`)
+        : await api.get(`/traces?limit=${TRACES_PER_PAGE}&offset=${offset}`)
       setTraces(data.traces)
       setTotal(data.total)
       setPage(pageToLoad)
@@ -707,7 +718,19 @@ function Traces({ notifyError }) {
     }
   }
 
-  useEffect(() => { load(0) }, [])
+  // Re-runs on mount (activeSearch starts null -- normal /traces browsing)
+  // and again whenever a search is submitted or cleared.
+  useEffect(() => { load(0) }, [activeSearch])
+
+  const runSearch = (e) => {
+    e.preventDefault()
+    setActiveSearch(searchInput.trim() || null)
+  }
+
+  const clearSearch = () => {
+    setSearchInput('')
+    setActiveSearch(null)
+  }
 
   const pageCount = Math.max(1, Math.ceil(total / TRACES_PER_PAGE))
 
@@ -744,6 +767,22 @@ function Traces({ notifyError }) {
         </div>
         <button className="btn secondary small" onClick={() => load(page)}><IconRefresh /> Refresh</button>
       </div>
+
+      <form className="trace-search" onSubmit={runSearch}>
+        <input
+          type="text"
+          placeholder="Search all traces by keyword (question, answer, source, thought)..."
+          value={searchInput}
+          onChange={(e) => setSearchInput(e.target.value)}
+        />
+        <button type="submit" className="btn small">Search</button>
+        {activeSearch && <button type="button" className="btn secondary small" onClick={clearSearch}>Clear</button>}
+      </form>
+      {activeSearch && (
+        <p className="search-status">
+          Searching for "{activeSearch}" -- {total} match{total === 1 ? '' : 'es'} across all traces (not just this page).
+        </p>
+      )}
 
       <div className="trace-toolbar">
         <div className="filter-tabs">

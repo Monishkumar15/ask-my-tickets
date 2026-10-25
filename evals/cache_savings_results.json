@@ -1,0 +1,397 @@
+{
+  "run_at": "2026-10-19T14:52:03.333916+00:00",
+  "cold_records": [
+    {
+      "id": "q1",
+      "question": "why did my account get locked when I typed my password wrong a few times?",
+      "cache_hit": false,
+      "prompt_tokens": 687,
+      "completion_tokens": 41,
+      "total_cost_usd": 0.00023325,
+      "skipped_llm": false
+    },
+    {
+      "id": "q2",
+      "question": "my order still hasn't shown up, it's way past when it should have",
+      "cache_hit": false,
+      "prompt_tokens": 704,
+      "completion_tokens": 106,
+      "total_cost_usd": 0.00033499999999999996,
+      "skipped_llm": false
+    },
+    {
+      "id": "q3",
+      "question": "3 attempts and now I'm locked out, is that normal?",
+      "cache_hit": false,
+      "prompt_tokens": 686,
+      "completion_tokens": 93,
+      "total_cost_usd": 0.0003110000000000001,
+      "skipped_llm": false
+    },
+    {
+      "id": "q4",
+      "question": "I want to go to Account Settings, Subscription, then Cancel Plan -- what happens after that?",
+      "cache_hit": false,
+      "prompt_tokens": 676,
+      "completion_tokens": 57,
+      "total_cost_usd": 0.0002545,
+      "skipped_llm": false
+    },
+    {
+      "id": "q5",
+      "question": "there are two $29.99 charges on my statement from the same day",
+      "cache_hit": false,
+      "prompt_tokens": 695,
+      "completion_tokens": 63,
+      "total_cost_usd": 0.00026825,
+      "skipped_llm": false
+    },
+    {
+      "id": "q6",
+      "question": "it's been 45 days since I bought it, can I still get money back?",
+      "cache_hit": false,
+      "prompt_tokens": 700,
+      "completion_tokens": 40,
+      "total_cost_usd": 0.00023500000000000002,
+      "skipped_llm": false
+    },
+    {
+      "id": "q7",
+      "question": "carrier says lost in transit, what do we do for the customer?",
+      "cache_hit": false,
+      "prompt_tokens": 721,
+      "completion_tokens": 46,
+      "total_cost_usd": 0.00024925,
+      "skipped_llm": false
+    },
+    {
+      "id": "q11",
+      "question": "the item I got was damaged, will you refund me",
+      "cache_hit": false,
+      "prompt_tokens": 716,
+      "completion_tokens": 41,
+      "total_cost_usd": 0.0002405,
+      "skipped_llm": false
+    },
+    {
+      "id": "q12",
+      "question": "you guys charged me the wrong price",
+      "cache_hit": false,
+      "prompt_tokens": 671,
+      "completion_tokens": 74,
+      "total_cost_usd": 0.00027874999999999997,
+      "skipped_llm": false
+    },
+    {
+      "id": "q8",
+      "question": "exactly how many days after cancelling is my data deleted?",
+      "cache_hit": false,
+      "prompt_tokens": 697,
+      "completion_tokens": 39,
+      "total_cost_usd": 0.00023275000000000002,
+      "skipped_llm": false
+    },
+    {
+      "id": "q9",
+      "question": "what percentage refund do I get if I ask between 31 and 60 days after buying?",
+      "cache_hit": false,
+      "prompt_tokens": 727,
+      "completion_tokens": 42,
+      "total_cost_usd": 0.00024475,
+      "skipped_llm": false
+    },
+    {
+      "id": "q10",
+      "question": "how many business days do you wait before filing a lost-in-transit claim?",
+      "cache_hit": false,
+      "prompt_tokens": 731,
+      "completion_tokens": 56,
+      "total_cost_usd": 0.00026675,
+      "skipped_llm": false
+    },
+    {
+      "id": "q13",
+      "question": "90 days delete data",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q14",
+      "question": "29.99 x2 reversed",
+      "cache_hit": false,
+      "prompt_tokens": 687,
+      "completion_tokens": 60,
+      "total_cost_usd": 0.00026175000000000005,
+      "skipped_llm": false
+    },
+    {
+      "id": "q15",
+      "question": "3 attempts locked 15 min",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "r1",
+      "question": "how does customer support ticketing work and what happens to my data if I cancel my subscription",
+      "cache_hit": false,
+      "prompt_tokens": 684,
+      "completion_tokens": 77,
+      "total_cost_usd": 0.0002865,
+      "skipped_llm": false
+    },
+    {
+      "id": "r2",
+      "question": "why is my order delayed, how do I get a refund for a defective item, and why was I charged the wrong amount",
+      "cache_hit": false,
+      "prompt_tokens": 736,
+      "completion_tokens": 156,
+      "total_cost_usd": 0.000418,
+      "skipped_llm": false
+    },
+    {
+      "id": "r3",
+      "question": "what's the best pizza topping?",
+      "cache_hit": false,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": true
+    },
+    {
+      "id": "r4",
+      "question": "What is the recommended management ratio for customer support teams according to the guide?",
+      "cache_hit": false,
+      "prompt_tokens": 615,
+      "completion_tokens": 11,
+      "total_cost_usd": 0.00017025000000000002,
+      "skipped_llm": false
+    },
+    {
+      "id": "r5",
+      "question": "how do I contact customer support",
+      "cache_hit": false,
+      "prompt_tokens": 680,
+      "completion_tokens": 11,
+      "total_cost_usd": 0.0001865,
+      "skipped_llm": false
+    },
+    {
+      "id": "r6",
+      "question": "what percentage refund do I get if I ask between 31 and 60 days after buying?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    }
+  ],
+  "warm_records": [
+    {
+      "id": "q1",
+      "question": "why did my account get locked when I typed my password wrong a few times?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q2",
+      "question": "my order still hasn't shown up, it's way past when it should have",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q3",
+      "question": "3 attempts and now I'm locked out, is that normal?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q4",
+      "question": "I want to go to Account Settings, Subscription, then Cancel Plan -- what happens after that?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q5",
+      "question": "there are two $29.99 charges on my statement from the same day",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q6",
+      "question": "it's been 45 days since I bought it, can I still get money back?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q7",
+      "question": "carrier says lost in transit, what do we do for the customer?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q11",
+      "question": "the item I got was damaged, will you refund me",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q12",
+      "question": "you guys charged me the wrong price",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q8",
+      "question": "exactly how many days after cancelling is my data deleted?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q9",
+      "question": "what percentage refund do I get if I ask between 31 and 60 days after buying?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q10",
+      "question": "how many business days do you wait before filing a lost-in-transit claim?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q13",
+      "question": "90 days delete data",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q14",
+      "question": "29.99 x2 reversed",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "q15",
+      "question": "3 attempts locked 15 min",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "r1",
+      "question": "how does customer support ticketing work and what happens to my data if I cancel my subscription",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "r2",
+      "question": "why is my order delayed, how do I get a refund for a defective item, and why was I charged the wrong amount",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "r3",
+      "question": "what's the best pizza topping?",
+      "cache_hit": false,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": true
+    },
+    {
+      "id": "r4",
+      "question": "What is the recommended management ratio for customer support teams according to the guide?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "r5",
+      "question": "how do I contact customer support",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    },
+    {
+      "id": "r6",
+      "question": "what percentage refund do I get if I ask between 31 and 60 days after buying?",
+      "cache_hit": true,
+      "prompt_tokens": 0,
+      "completion_tokens": 0,
+      "total_cost_usd": 0.0,
+      "skipped_llm": false
+    }
+  ],
+  "cold_summary": {
+    "n": 21,
+    "total_tokens": 12826,
+    "total_cost_usd": 0.00447275,
+    "cache_hits": 3
+  },
+  "warm_summary": {
+    "n": 21,
+    "total_tokens": 0,
+    "total_cost_usd": 0.0,
+    "cache_hits": 20
+  }
+}

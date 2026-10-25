@@ -6,6 +6,7 @@ running the app, and returns (passed: bool, reason: str) -- reason is
 always filled in, on both pass and fail, so a scorecard reads clearly
 without re-running anything to find out why.
 """
+import unicodedata
 
 
 def check_expected_source(case, chunks):
@@ -82,17 +83,56 @@ def check_must_cite_page(case, chunks):
     return False, f"no chunk carried a page number -- got pages={pages}"
 
 
+# Week 11: closes the exact gap FINDINGS_week10.md Section 9 identified and
+# explicitly deferred -- Groq's gpt-oss-120b writes numbers/punctuation
+# using non-ASCII lookalikes (a narrow no-break space before "%", a
+# non-breaking hyphen in a range like "31-60") that read identically to a
+# human but fail a literal substring match. Tested directly against the
+# real characters found in this project's own traces before trusting this
+# fix: unicodedata.normalize("NFKC", ...) alone only gets PART of the way
+# -- it correctly folds " " (narrow no-break space) to a plain space,
+# but "‑" (non-breaking hyphen) only maps to "‐" (a DIFFERENT
+# non-ASCII hyphen, still not "-"), and the full-width "【"/"】"
+# brackets Groq sometimes wraps a citation in aren't touched by NFKC at
+# all. The explicit replacement table below covers what NFKC misses,
+# rather than shipping a fix that only works for the one lucky case.
+_UNICODE_LOOKALIKES = {
+    "‐": "-", "‑": "-", "‒": "-", "–": "-", "—": "-",  # hyphen/dash variants
+    "‘": "'", "’": "'", "“": '"', "”": '"',  # curly quotes
+}
+
+
+def _normalize_for_keyword_match(text):
+    normalized = unicodedata.normalize("NFKC", text)
+    for unicode_char, ascii_char in _UNICODE_LOOKALIKES.items():
+        normalized = normalized.replace(unicode_char, ascii_char)
+    # Strip ALL whitespace, not just normalize it -- tested directly
+    # against the real drill trace and found that NFKC-folding the narrow
+    # no-break space to a plain space is NOT enough on its own: Groq used
+    # it as "50 %" (no space intended, keyword is "50%") in that
+    # exact answer, but FINDINGS_week10.md Section 9 also documented it as
+    # "15 minutes" (A space IS intended, keyword is "15 minutes") --
+    # there is no single space-preserving replacement correct for both.
+    # Removing all whitespace from BOTH sides before comparing sidesteps
+    # the ambiguity entirely, at the acceptable cost of being slightly
+    # more permissive (e.g. "5 0%" would now also match "50%").
+    return "".join(normalized.split())
+
+
 def check_expected_keywords(case, answer_text):
     """Case-insensitive substring match -- every expected keyword must
     appear somewhere in the generated answer. Simple and honest about its
-    limits (see classify_failures.py's docstring for the same caveat)."""
+    limits (see classify_failures.py's docstring for the same caveat).
+    Both the answer and each keyword are normalized the same way before
+    comparing, so a keyword written with a plain ASCII space/hyphen still
+    matches an answer that used a Unicode lookalike, and vice versa."""
     keywords = case.get("expected_keywords")
     if not keywords:
         return None, "no expected_keywords on this case"
     if answer_text is None:
         return False, "no answer text to check (refused or errored)"
-    text_lower = answer_text.lower()
-    missing = [kw for kw in keywords if kw.lower() not in text_lower]
+    text_lower = _normalize_for_keyword_match(answer_text).lower()
+    missing = [kw for kw in keywords if _normalize_for_keyword_match(kw).lower() not in text_lower]
     if not missing:
         return True, f"all keywords present: {keywords}"
     return False, f"missing keyword(s): {missing}"
